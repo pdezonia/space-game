@@ -5,7 +5,7 @@ all code related to an individual ship. This should make it easier to create
 fleets of ships.
 
 by Philip deZonia
-last modified: 2017-02-19
+last modified: 2017-02-26
 """
 
 # import required modules (maybe reduntantly)
@@ -44,9 +44,10 @@ class Ship(pygame.sprite.Sprite):
         self.whole_ship = pygame.sprite.OrderedUpdates((self.ship_hull, \
         self.turret1, self.turret2, self.turret3, self.turret4, self.turret5, self.turret6))
     
-    def motion(self, inputs, in_angle):
+    def motion(self, inputs, in_angle, player_pos = [0, 0]):
         """update position of ship and turrets. inputs is a tuple of bools: 
-        fwd, bwd, cw, ccw, shift, ctrl, space. aim_angle is where turrets are pointing"""
+        fwd, bwd, cw, ccw, shift, ctrl, space. aim_angle is where turrets are
+        pointing, last argument is position of camera center in world coords"""
         # take in aim_angle
         self.aim_angle = in_angle
         
@@ -60,16 +61,21 @@ class Ship(pygame.sprite.Sprite):
         self.thrust_angle = state[4]
         
         # update ship position and pose
-        self.ship_hull.update_pos(self.pos, self.heading)
+        self.ship_hull.update_pos(self.pos, self.heading, player_pos)
+        
+        # don't know why I didn't just do this instead of modifying every function
+        # adjust turret position to move by ship
+        turret_pos = [self.pos[0] - player_pos[0], self.pos[1] - player_pos[1]]
         
         # update turret positions and angles
-        self.t1pos = self.turret1.move_and_rotate(self.pos, self.heading, self.aim_angle)
-        self.t2pos = self.turret2.move_and_rotate(self.pos, self.heading, self.aim_angle)
-        self.t3pos = self.turret3.move_and_rotate(self.pos, self.heading, self.aim_angle)
-        self.t4pos = self.turret4.move_and_rotate(self.pos, self.heading, self.aim_angle)
-        self.t5pos = self.turret5.move_and_rotate(self.pos, self.heading, self.aim_angle)
-        self.t6pos = self.turret6.move_and_rotate(self.pos, self.heading, self.aim_angle)
+        self.t1pos = self.turret1.move_and_rotate(turret_pos, self.heading, self.aim_angle)
+        self.t2pos = self.turret2.move_and_rotate(turret_pos, self.heading, self.aim_angle)
+        self.t3pos = self.turret3.move_and_rotate(turret_pos, self.heading, self.aim_angle)
+        self.t4pos = self.turret4.move_and_rotate(turret_pos, self.heading, self.aim_angle)
+        self.t5pos = self.turret5.move_and_rotate(turret_pos, self.heading, self.aim_angle)
+        self.t6pos = self.turret6.move_and_rotate(turret_pos, self.heading, self.aim_angle)
         
+        # add player ship position for offseting
     def render(self, game_window, is_firing):
         """Render ship at new position and angle, takes game screen surface object"""
         self.whole_ship.update() # update sprite statuses

@@ -6,7 +6,7 @@ is incompatible with ship.py, stations are stationary and maybe spin in place,
 depends on whether I can get the ships to move with it.
 
 by Philip deZonia
-last modified: 2017-02-23
+last modified: 2017-02-26
 """
 
 # import required modules (maybe reduntantly)
@@ -19,6 +19,7 @@ from apple_cat_sprite import *
 from turret import *
 from physics import *
 from laser_generator import *
+import station_sprite
 
 class Station(pygame.sprite.Sprite):
     def __init__(self, x_root, y_root, spin_speed, name): 
@@ -29,15 +30,29 @@ class Station(pygame.sprite.Sprite):
         self.omega = spin_speed
         
         if name == "Loanne":
-            self.station_left = Loanne()
-            self.station_right = Loanne()
-        else
+            self.station_left = station_sprite.Loanne('L')
+            self.station_right = station_sprite.Loanne('R')
+        else:
             # i don't have another station sprite for now
-            self.station_left = Loanne()
-            self.station_right = Loanne()
+            self.station_left = station_sprite.Loanne('L')
+            self.station_right = station_sprite.Loanne('R')
             
         # tie two havles together
         self.whole_station = pygame.sprite.OrderedUpdates(self.station_left, \
         self.station_right)
-    def render(self, game_window):
         
+        # assign position
+        self.station_left.update_pos(self.pos)
+        self.station_right.update_pos(self.pos)
+
+    def motion(self, player_pos = [0, 0]):
+        """update position of station, station doesn't really move relative to
+        world coords but has to have screen position changed as player ship moves,
+        only takes player ship world pos as its arguments"""
+        self.station_left.update_pos(self.pos, player_pos)
+        self.station_right.update_pos(self.pos, player_pos)
+    
+    def render(self, game_window):
+        """render ship at root position, takes game surface object"""
+        self.whole_station.update()
+        self.whole_station.draw(game_window)

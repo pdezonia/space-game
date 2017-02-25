@@ -9,7 +9,7 @@ Contains useful function: load_image
 This doc takes a lot of advice from pygame.org/docs/tut
 
 by Philip deZonia
-last modified: 2017-02-23
+last modified: 2017-02-25
 """
 
 # import required modules
@@ -23,19 +23,26 @@ import math
 class Applecat(pygame.sprite.Sprite):
     """ define class for Applecat spaceship """
     def __init__(self):
-        pygame.sprite.Sprite.__init__(self) #call sprite initializer
+        pygame.sprite.Sprite.__init__(self) # call sprite initializer
         
         # load hull of ship as image/surface and as rectangle
         self.image, self.rect = self.load_image('apple_cat small3.png')
         self.original_image = self.image
     
-    """ define position and attitude function """
-    def update_pos(self, ship_cent, heading):
+    def update_pos(self, ship_cent, heading, player_pos = [0, 0]):
+        """define position and attitude function, first argument is center
+        of this ship, second is the rotation angle of it, and third is the
+        position of the ship followed by the camera"""
         # perform rotation on original image
         self.image = pygame.transform.rotate(self.original_image, heading)
         
+        # for recentering the image after rotating messes up the rectangle
         self.rect = self.image.get_rect()
-        self.rect.center = (ship_cent)
+        
+        # center is screen postion, ship_cent is world position of ship,
+        # player_pos is world position of player ship
+        self.rect.centerx = ship_cent[0] - player_pos[0]
+        self.rect.centery = ship_cent[1] - player_pos[1]
         
     def load_image(self, name, colorkey = None):
         fullname = os.path.join(
