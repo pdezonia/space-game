@@ -12,9 +12,21 @@ last modified: 2017-02-16
 import pygame
 import os, sys
 from math import *
+import apple_cat_sprite
 
 # start modules required by pygame
 pygame.init()
+
+class LaserBeam(apple_cat_sprite.Applecat):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self) #call sprite initializer
+        self.image, self.rect = self.load_image('laser_beam.png', -1)
+        self.original_image = self.image
+        
+    def place_laser(self, start_point, angle):
+        self.image = pygame.transform.rotate(self.original_image, angle)
+        self.rect = self.image.get_rect()
+        self.rect.midleft = start_point
 
 def draw_laser(origin_point, angle, screen_object):
     """ draw a thin rectangle from the point of origin and that is 

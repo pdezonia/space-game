@@ -56,5 +56,5 @@ class Applecat(pygame.sprite.Sprite):
         if colorkey is not None: # do optional color adjustment
             if colorkey is -1:
                 colorkey = image.get_at((0,0))
-            image.set_colorkey(colorkey, RLEACCEL)
+            image.set_colorkey(colorkey, pygame.RLEACCEL)
         return image, image.get_rect() # return surface and rectangle 

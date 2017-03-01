@@ -9,6 +9,8 @@ last modified: 2017-02-26
 
 # import required modules
 import pygame
+from pygame.locals import *
+from pygame.compat import geterror
 import os, sys
 import math
 import apple_cat_sprite
@@ -27,10 +29,10 @@ class Loanne(apple_cat_sprite.Applecat): # is this how you inherit?
         
         # load hull of ship as image/surface and as rectangle
         if self.is_left:
-            self.image, self.rect = self.load_image('station left half large transfer.png')
+            self.image, self.rect = self.load_image('station left half large.png', -1)
             self.original_image = self.image
         else:
-            self.image, self.rect = self.load_image('station right half large transfer.png')
+            self.image, self.rect = self.load_image('station right half large.png', -1)
             self.original_image = self.image
     
     def update_pos(self, position, player_pos = [0, 0]):

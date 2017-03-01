@@ -25,6 +25,8 @@ class Ship(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self) # call sprite initializer
         self.ship_hull = Applecat() # create ship hull sprite currently just the applecat
         
+        self.health_points = 30     # initialize ship health
+        
         self.pos = [x_start, y_start] #initialize ship position
         self.heading = 0      # angle of ship       # and a bunch of other shit
         self.vel = 0          # magitude of velocity of ship
@@ -35,14 +37,16 @@ class Ship(pygame.sprite.Sprite):
         self.aim_angle = 0    # angle turrets are pointing
         
         # create turret sprites
-        self.turret1 = Turret('AC', 1)
-        self.turret2 = Turret('AC', 2)
-        self.turret3 = Turret('AC', 3)
-        self.turret4 = Turret('AC', 4)
-        self.turret5 = Turret('AC', 5)
-        self.turret6 = Turret('AC', 6)
-        self.whole_ship = pygame.sprite.OrderedUpdates((self.ship_hull, \
-        self.turret1, self.turret2, self.turret3, self.turret4, self.turret5, self.turret6))
+        self.turrets = []
+        for i in range(6):
+            self.turrets.append(Turret('AC', i + 1))
+        
+        # create ship sprite group
+        self.whole_ship = pygame.sprite.OrderedUpdates(self.ship_hull, \
+        self.turrets[0], self.turrets[1], self.turrets[2], \
+        self.turrets[3], self.turrets[4], self.turrets[5])
+        
+        self.ship_laser_beams = pygame.sprite.OrderedUpdates()
     
     def motion(self, inputs, in_angle, player_pos = [0, 0]):
         """update position of ship and turrets. inputs is a tuple of bools: 
@@ -68,12 +72,11 @@ class Ship(pygame.sprite.Sprite):
         turret_pos = [self.pos[0] - player_pos[0], self.pos[1] - player_pos[1]]
         
         # update turret positions and angles
-        self.t1pos = self.turret1.move_and_rotate(turret_pos, self.heading, self.aim_angle)
-        self.t2pos = self.turret2.move_and_rotate(turret_pos, self.heading, self.aim_angle)
-        self.t3pos = self.turret3.move_and_rotate(turret_pos, self.heading, self.aim_angle)
-        self.t4pos = self.turret4.move_and_rotate(turret_pos, self.heading, self.aim_angle)
-        self.t5pos = self.turret5.move_and_rotate(turret_pos, self.heading, self.aim_angle)
-        self.t6pos = self.turret6.move_and_rotate(turret_pos, self.heading, self.aim_angle)
+        self.t_pos = []
+        for i in range(6):
+            self.t_pos.append(self.turrets[i].move_and_rotate(turret_pos, self.heading, self.aim_angle))
+        
+        return self.pos
         
         # add player ship position for offseting
     def render(self, game_window, is_firing):
@@ -81,12 +84,25 @@ class Ship(pygame.sprite.Sprite):
         self.whole_ship.update() # update sprite statuses
         self.whole_ship.draw(game_window)
         if is_firing:
-            draw_laser(self.t1pos, self.aim_angle, game_window)
-            draw_laser(self.t2pos, self.aim_angle, game_window)
-            draw_laser(self.t3pos, self.aim_angle, game_window)
-            draw_laser(self.t4pos, self.aim_angle, game_window)
-            draw_laser(self.t5pos, self.aim_angle, game_window)
-            draw_laser(self.t6pos, self.aim_angle, game_window)
+            # for i in range(6):
+                # draw_laser(self.t_pos[i], self.aim_angle, game_window)
+            self.shoot(game_window)
+        if not is_firing:
+            self.ship_laser_beams.empty()
+    
+    def shoot(self, game_window):
+        if not bool(self.ship_laser_beams):
+            self.beam_group = []
+            for i in range(6):
+                self.beam_group.append(LaserBeam())
+                self.beam_group[i].place_laser(self.t_pos[i], self.aim_angle)
+        
+            self.ship_laser_beams.add(self.beam_group)
+            self.ship_laser_beams.update()
+            self.ship_laser_beams.draw(game_window)
+    
+    def take_damage(self):
+        self.health_points -= 1
 # A
 # | Give
 # | me

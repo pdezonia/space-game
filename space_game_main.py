@@ -17,19 +17,12 @@ from apple_cat_sprite import *
 from turret import *
 from physics import *
 from laser_generator import *
-import ship
-
-# start modules required by pygame
-pygame.init()
-
-# create clock timer to limit frame rate
-clock = pygame.time.Clock()
-
-# create game window
-window = pygame.display.set_mode((1200, 900))
+import ship, station
 
 # initialize variables
-is_done = False
+is_done = False  # game exits when true
+screen_width = 1200
+screen_height = 900
 x_pos = 600      # x coord of ship
 y_pos = 450      # y coord of ship
 heading = 0      # angle of ship
@@ -40,15 +33,25 @@ delta_v = 0      # velocity change due to thrusters
 delta_omega = 0  # angular velocity change due to thrusters
 thrust_angle = 0 # angle at time of thrusting
 
+# start modules required by pygame
+pygame.init()
+
+# create clock timer to limit frame rate
+clock = pygame.time.Clock()
+
+# create game window
+window = pygame.display.set_mode((screen_width, screen_height))
+
 # get fonts ready, i guess?
 ourFont = pygame.font.Font(None, 36)
 
 # create objects
-da_ship = Applecat()
-da_shipTest = ship.Ship(700, 500)
-second_ship = ship.Ship(800, 600)
+da_shipTest = ship.Ship(1200, 900) # investigate why this puts ship in center
+second_ship = ship.Ship(1800, 800)
+space_station = station.Station(1000, 400, 0, 'Loanne')
 
-second_ship.motion([1, 0, 0, 1, 0, 0, 0], 90)
+# worst ai ever
+second_ship.motion([1, 0, 0, 1, 0, 0, 0], 90, [700, 500])
 
 turret1 = Turret('AC', 1)
 turret2 = Turret('AC', 2)
@@ -56,9 +59,6 @@ turret3 = Turret('AC', 3)
 turret4 = Turret('AC', 4)
 turret5 = Turret('AC', 5)
 turret6 = Turret('AC', 6)
-
-allsprites = pygame.sprite.OrderedUpdates((da_ship, \
-turret1, turret2, turret3, turret4, turret5, turret6))
 
 # testing
 _image_library = {} # it's an empty set?
@@ -89,48 +89,33 @@ while not is_done:
     if pygame.key.get_pressed()[pygame.K_s]: inputs[1] = 1
     if pygame.key.get_pressed()[pygame.K_a]: inputs[3] = 1
     if pygame.key.get_pressed()[pygame.K_d]: inputs[2] = 1
-    # why would you want to go faster??? consider using shift for monoprop
-    # if pygame.key.get_pressed()[pygame.K_LSHIFT]:
-        # delta_omega *= 2
-        # delta_v *= 2 
+    # press shift for monoprop
+    if pygame.key.get_pressed()[pygame.K_LSHIFT]: inputs[4] = 1
     if pygame.key.get_pressed()[pygame.K_LCTRL]: inputs[5] = 1
     if pygame.key.get_pressed()[pygame.K_SPACE]: inputs[6] = 1
-    
-    phys_output = control_test((x_pos, y_pos), vel, heading, \
-    omega, thrust_angle, 1, 1)
-    
-    x_pos = phys_output[0][0]
-    y_pos = phys_output[0][1]
-    vel = phys_output[1]
-    heading = phys_output[2]
-    omega = phys_output[3]
-    thrust_angle = phys_output[4]
-    
-    # update ship position and pose
-    da_ship.update_pos([x_pos, y_pos], heading)
     
     # calculate turret angle
     mouse_x = pygame.mouse.get_pos()[0]
     mouse_y = pygame.mouse.get_pos()[1]
-    turr_ang = math.degrees(atan2(- mouse_y + da_shipTest.pos[1], mouse_x - da_shipTest.pos[0]))
-
-    # calculate turret position and pose
-    t1pos = turret1.move_and_rotate([x_pos, y_pos], heading, turr_ang)
-    t2pos = turret2.move_and_rotate([x_pos, y_pos], heading, turr_ang)
-    t3pos = turret3.move_and_rotate([x_pos, y_pos], heading, turr_ang)
-    t4pos = turret4.move_and_rotate([x_pos, y_pos], heading, turr_ang)
-    t5pos = turret5.move_and_rotate([x_pos, y_pos], heading, turr_ang)
-    t6pos = turret6.move_and_rotate([x_pos, y_pos], heading, turr_ang)
+    turr_ang = math.degrees(atan2(- mouse_y + screen_height / 2, \
+    mouse_x - screen_width / 2))
     
     # load crosshairs
     crosshairs = get_image('crosshairs1.png')
     # get center offset
     xc = crosshairs.get_size()[0]/2
     yc = crosshairs.get_size()[1]/2
-    # print inputs
-    da_shipTest.motion(inputs, turr_ang)
+    
+    # calculate new ship positions
+    [x_pos, y_pos] = da_shipTest.motion(inputs, turr_ang, \
+    [x_pos - screen_width / 2, y_pos - screen_height / 2])
+    #print [x_pos, y_pos]
     # tell npc ship to move
-    second_ship.motion([1, 0, 1, 0, 0, 0, 0], 90)
+    second_ship.motion([1, 0, 1, 0, 0, 0, 0], 90, [x_pos, y_pos])
+    # tell staion to "move"
+    space_station.motion([x_pos, y_pos])
+    
+    # search for collisions
     
     """ end of loop work """
     # update sprite statuses
@@ -143,24 +128,14 @@ while not is_done:
     # window.blit(get_image('station right half large.png'), (30, 30))
     
     # draw all sprites
+    space_station.render(window)
     #allsprites.draw(window)
     da_shipTest.render(window, pygame.mouse.get_pressed()[0])
     # draw npc ship
     second_ship.render(window, 0)
-    
-    #if firing, render lasers
-    # if pygame.mouse.get_pressed()[0]:
-        # draw_laser(t1pos, turr_ang, window)
-        # draw_laser(t2pos, turr_ang, window)
-        # draw_laser(t3pos, turr_ang, window)
-        # draw_laser(t4pos, turr_ang, window)
-        # draw_laser(t5pos, turr_ang, window)
-        # draw_laser(t6pos, turr_ang, window)
         
     # change mouse to crosshairs
     pygame.mouse.set_visible(0)
-    
-    # draw crosshairs
     window.blit(crosshairs, (mouse_x - xc, mouse_y - yc))
 
     # update game window
