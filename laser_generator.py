@@ -24,9 +24,10 @@ class LaserBeam(apple_cat_sprite.Applecat):
         self.original_image = self.image
         
     def place_laser(self, start_point, angle):
-        self.image = pygame.transform.rotate(self.original_image, angle)
+        self.image = pygame.transform.rotate(self.original_image, -angle)
         self.rect = self.image.get_rect()
-        self.rect.midleft = start_point
+        self.rect.centerx = start_point[0] + 1024*cos(radians(angle))
+        self.rect.centery = start_point[1] + 1024*sin(radians(angle))
 
 def draw_laser(origin_point, angle, screen_object):
     """ draw a thin rectangle from the point of origin and that is 

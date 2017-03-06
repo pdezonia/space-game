@@ -47,6 +47,10 @@ class Ship(pygame.sprite.Sprite):
         self.turrets[3], self.turrets[4], self.turrets[5])
         
         self.ship_laser_beams = pygame.sprite.OrderedUpdates()
+        self.beam_group = []
+        for i in range(6):
+            self.beam_group.append(LaserBeam())
+        self.ship_laser_beams.add(self.beam_group)
     
     def motion(self, inputs, in_angle, player_pos = [0, 0]):
         """update position of ship and turrets. inputs is a tuple of bools: 
@@ -75,29 +79,30 @@ class Ship(pygame.sprite.Sprite):
         self.t_pos = []
         for i in range(6):
             self.t_pos.append(self.turrets[i].move_and_rotate(turret_pos, self.heading, self.aim_angle))
+            self.beam_group[i].place_laser(self.t_pos[i], self.aim_angle)
         
         return self.pos
         
         # add player ship position for offseting
     def render(self, game_window, is_firing):
         """Render ship at new position and angle, takes game screen surface object"""
-        self.whole_ship.update() # update sprite statuses
+        self.whole_ship.update() # update sprite statuses, doesn't do anything b/c we have no update method
         self.whole_ship.draw(game_window)
         if is_firing:
-            # for i in range(6):
-                # draw_laser(self.t_pos[i], self.aim_angle, game_window)
-            self.shoot(game_window)
-        if not is_firing:
-            self.ship_laser_beams.empty()
+            self.ship_laser_beams.draw(game_window)
+        # if not is_firing:
+            # self.ship_laser_beams.empty()
     
     def shoot(self, game_window):
         if not bool(self.ship_laser_beams):
             self.beam_group = []
             for i in range(6):
                 self.beam_group.append(LaserBeam())
+                print self.beam_group[i]
                 self.beam_group[i].place_laser(self.t_pos[i], self.aim_angle)
         
             self.ship_laser_beams.add(self.beam_group)
+            print self.beam_group[i]
             self.ship_laser_beams.update()
             self.ship_laser_beams.draw(game_window)
     
