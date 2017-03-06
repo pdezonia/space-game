@@ -59,7 +59,7 @@ class Ship(pygame.sprite.Sprite):
         # take in aim_angle
         self.aim_angle = in_angle
         
-        #use physics module to calculate new postion heading, etc
+        # use physics module to calculate new postion heading, etc
         state = advance(self.pos, self.vel, self.heading, \
         self.omega, self.thrust_angle, 1, 1, inputs)
         self.pos = state[0]

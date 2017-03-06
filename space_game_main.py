@@ -25,13 +25,6 @@ screen_width = 1200
 screen_height = 900
 x_pos = 600      # x coord of ship
 y_pos = 450      # y coord of ship
-heading = 0      # angle of ship
-vel = 0          # magitude of velocity of ship
-omega = 0        # magnitude of angular velocity of ship
-time_step = .1   # define time step between frames
-delta_v = 0      # velocity change due to thrusters
-delta_omega = 0  # angular velocity change due to thrusters
-thrust_angle = 0 # angle at time of thrusting
 
 # start modules required by pygame
 pygame.init()
@@ -50,15 +43,8 @@ da_shipTest = ship.Ship(1200, 900) # investigate why this puts ship in center
 second_ship = ship.Ship(1800, 800)
 space_station = station.Station(1000, 400, 0, 'Loanne')
 
-# worst ai ever
+# start npc ship basic motion
 second_ship.motion([1, 0, 0, 1, 0, 0, 0], 90, [700, 500])
-
-turret1 = Turret('AC', 1)
-turret2 = Turret('AC', 2)
-turret3 = Turret('AC', 3)
-turret4 = Turret('AC', 4)
-turret5 = Turret('AC', 5)
-turret6 = Turret('AC', 6)
 
 # testing
 _image_library = {} # it's an empty set?
@@ -109,7 +95,6 @@ while not is_done:
     # calculate new ship positions
     [x_pos, y_pos] = da_shipTest.motion(inputs, turr_ang, \
     [x_pos - screen_width / 2, y_pos - screen_height / 2])
-    #print [x_pos, y_pos]
     # tell npc ship to move
     second_ship.motion([1, 0, 1, 0, 0, 0, 0], 90, [x_pos, y_pos])
     # tell staion to "move"
@@ -118,18 +103,12 @@ while not is_done:
     # search for collisions
     
     """ end of loop work """
-    # update sprite statuses
-    #allsprites.update()
     
     # redraw screen to clear up previous iterations of the square
     window.fill((50, 50, 50)) # grey background
-
-    # testing
-    # window.blit(get_image('station right half large.png'), (30, 30))
     
     # draw all sprites
     space_station.render(window)
-    #allsprites.draw(window)
     da_shipTest.render(window, pygame.mouse.get_pressed()[0])
     # draw npc ship
     second_ship.render(window, 0)

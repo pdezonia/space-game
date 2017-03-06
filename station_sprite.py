@@ -19,7 +19,6 @@ class Loanne(apple_cat_sprite.Applecat): # is this how you inherit?
     def __init__(self, side_id):
         """get sprite image and rectangle, argument is 'L' or 'R' to designate
         sprite halves"""
-        # is this how you override? yeah
         pygame.sprite.Sprite.__init__(self) #call sprite initializer
         
         if side_id == 'L':
