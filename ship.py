@@ -1,115 +1,56 @@
 """
-|<--------------------------------------------------------------------------->|
-ship.py is meant to clean up the main program by grouping together
-all code related to an individual ship. This should make it easier to create
-fleets of ships.
-
-by Philip deZonia
-last modified: 2017-02-26
+|<-------------------------------------------------------------------------->|
+|<------------------------------------------------------------------->|
+ship.py is a class definition for all self-propelled vessels in the
+game.
+This is the refactored version of ship.py
 """
 
-# import required modules (maybe reduntantly)
 import pygame
-import os, sys
-from math import *
+import physics
+import applecat_sprite
+import applecat_turret
 
-# import custom made modules
-from apple_cat_sprite import *
-from turret import *
-from physics import *
-from laser_generator import *
 
-class Ship(pygame.sprite.Sprite):
-    def __init__(self, x_start, y_start):
-        """intialize sprites and state variables"""
-        pygame.sprite.Sprite.__init__(self) # call sprite initializer
-        self.ship_hull = Applecat() # create ship hull sprite currently just the applecat
-        
-        self.health_points = 30     # initialize ship health
-        
-        self.pos = [x_start, y_start] #initialize ship position
-        self.heading = 0      # angle of ship       # and a bunch of other shit
-        self.vel = 0          # magitude of velocity of ship
-        self.omega = 0        # magnitude of angular velocity of ship
-        self.delta_v = 0      # velocity change due to thrusters
-        self.delta_omega = 0  # angular velocity change due to thrusters
-        self.thrust_angle = 0 # angle at time of thrusting
-        self.aim_angle = 0    # angle turrets are pointing
-        
-        # create turret sprites
-        self.turrets = []
+class Ship(object):
+    def __init__(self, ship_type, starting_pos):
+        """Initialize health, physics state, ship sprite and turret
+        type, and also handle dealing and receiving damage.
+        """
+        self.health_points = 30
+        if ship_type == 'Applecat':
+            self._initialize_applecat()
+        start_location = starting_pos
+        self.model = physics.Simulator(start_location)
+
+
+    def _initialize_applecat(self):
+        self.hull_sprite = applecat_sprite.ApplecatHullSprite()
+        self.whole_ship = pygame.sprite.OrderedUpdates(self.hull_sprite)
+        self.turret_list = []
         for i in range(6):
-            self.turrets.append(Turret('AC', i + 1))
-        
-        # create ship sprite group
-        self.whole_ship = pygame.sprite.OrderedUpdates(self.ship_hull, \
-        self.turrets[0], self.turrets[1], self.turrets[2], \
-        self.turrets[3], self.turrets[4], self.turrets[5])
-        
-        self.ship_laser_beams = pygame.sprite.OrderedUpdates()
-        self.beam_group = []
+            x = applecat_turret.ApplecatTurret(i + 1)
+            self.turret_list.append(x)
+            self.whole_ship.add(x)
+
+
+    def motion(self, input_list, turret_angle, player_pos=[0, 0]):
+        """Update the position of ship. inputs is a list of flags for
+        control inputs, they are: [fwd, bwd, cw, ccw, shift, ctrl,
+        and spacebar. Return position so player ship position 
+        can be known to other sprites.
+        """
+        position, velocity, heading, omega, thrust_angle = (
+            self.model.calculate_timestep(input_list))
+        self.hull_sprite.update_pos(position, heading, player_pos)
+        self.t_pos = [] # possibly overly inefficient section
         for i in range(6):
-            self.beam_group.append(LaserBeam())
-        self.ship_laser_beams.add(self.beam_group)
+            self.t_pos.append(
+                self.turret_list[i].update_pos(position, heading,
+                                               turret_angle))
+        return position
     
-    def motion(self, inputs, in_angle, player_pos = [0, 0]):
-        """update position of ship and turrets. inputs is a tuple of bools: 
-        fwd, bwd, cw, ccw, shift, ctrl, space. aim_angle is where turrets are
-        pointing, last argument is position of camera center in world coords"""
-        # take in aim_angle
-        self.aim_angle = in_angle
-        
-        # use physics module to calculate new postion heading, etc
-        state = advance(self.pos, self.vel, self.heading, \
-        self.omega, self.thrust_angle, 1, 1, inputs)
-        self.pos = state[0]
-        self.vel = state[1]
-        self.heading = state[2]
-        self.omega = state[3]
-        self.thrust_angle = state[4]
-        
-        # update ship position and pose
-        self.ship_hull.update_pos(self.pos, self.heading, player_pos)
-        
-        # don't know why I didn't just do this instead of modifying every function
-        # adjust turret position to move by ship
-        turret_pos = [self.pos[0] - player_pos[0], self.pos[1] - player_pos[1]]
-        
-        # update turret positions and angles
-        self.t_pos = []
-        for i in range(6):
-            self.t_pos.append(self.turrets[i].move_and_rotate(turret_pos, self.heading, self.aim_angle))
-            self.beam_group[i].place_laser(self.t_pos[i], self.aim_angle)
-        
-        return self.pos
-        
-        # add player ship position for offseting
-    def render(self, game_window, is_firing):
-        """Render ship at new position and angle, takes game screen surface object"""
-        self.whole_ship.update() # update sprite statuses, doesn't do anything b/c we have no update method
+    
+    def render(self, game_window):
+        """Render ship at new position and angle"""
         self.whole_ship.draw(game_window)
-        if is_firing:
-            self.ship_laser_beams.draw(game_window)
-        # if not is_firing:
-            # self.ship_laser_beams.empty()
-    
-    def shoot(self, game_window):
-        if not bool(self.ship_laser_beams):
-            self.beam_group = []
-            for i in range(6):
-                self.beam_group.append(LaserBeam())
-                print self.beam_group[i]
-                self.beam_group[i].place_laser(self.t_pos[i], self.aim_angle)
-        
-            self.ship_laser_beams.add(self.beam_group)
-            print self.beam_group[i]
-            self.ship_laser_beams.update()
-            self.ship_laser_beams.draw(game_window)
-    
-    def take_damage(self):
-        self.health_points -= 1
-# A
-# | Give
-# | me
-# | space
-# V
