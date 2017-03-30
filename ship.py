@@ -47,7 +47,7 @@ class Ship(object):
         for i in range(6):
             self.t_pos.append(
                 self.turret_list[i].update_pos(position, heading,
-                                               turret_angle))
+                                               turret_angle, player_pos))
         return position
     
     
