@@ -1,46 +1,38 @@
 """
-|<--------------------------------------------------------------------------->|
-station_sprite.py is a class definition for the main sprite of the station. 
-The station has no turrets but does have lights that need to go on an off.
-
-by Philip deZonia
-last modified: 2017-02-26
+|<-------------------------------------------------------------------------->|
+|<------------------------------------------------------------------->|
+station_sprite.py is a class definition for sprites for either half of 
+the very large space station. It is overridden to accomodate different
+space station images, the defualt sprite is the same as the Loanne.
+This is the refactored version of station_sprite.py.
 """
 
-# import required modules
-import pygame
-from pygame.locals import *
-from pygame.compat import geterror
-import os, sys
-import math
-import apple_cat_sprite
+import enhanced_sprite
 
-class Loanne(apple_cat_sprite.Applecat): # is this how you inherit?
+
+class SpaceStationSprite(enhanced_sprite.EnhancedSprite):
     def __init__(self, side_id):
-        """get sprite image and rectangle, argument is 'L' or 'R' to designate
-        sprite halves"""
-        pygame.sprite.Sprite.__init__(self) #call sprite initializer
-        
-        if side_id == 'L':
-            self.is_left = True
-        if side_id == 'R':
-            self.is_left = False
-        
-        # load hull of ship as image/surface and as rectangle
-        if self.is_left:
-            self.image, self.rect = self.load_image('station left half large.png', -1)
-            self.original_image = self.image
+        """Loads different sprite depending on which half was
+        requested. side_id is a character ('L' or 'R') specifying
+        which half.
+        """
+        self.side_id = side_id
+        pygame.sprite.Sprite.__init__(self)
+        if self.side_id == 'L':
+            self.image, self.rect = self.load_image(
+                'station left half large.png', -1)
         else:
-            self.image, self.rect = self.load_image('station right half large.png', -1)
-            self.original_image = self.image
+            self.image, self.rect = self.load_image(
+                'station right half large.png', -1)
+        self.original_image = self.image
     
-    def update_pos(self, position, player_pos = [0, 0]):
-        """decide where center of station is as [x, y] in world coords, 
-        third argument is player ship world position if this object is 
-        not followed by the camera"""
-        if self.is_left:
+    def update_pos(self, position, player_pos=[0, 0]):
+        """Place the image on the left or right side of the given
+        point depending on which half it is. Modifies right or 
+        left and centery.
+        """
+        if self.side_id == 'L':
             self.rect.right = position[0] - player_pos[0]
-            self.rect.centery = position[1] - player_pos[1]
         else:
             self.rect.left = position[0] - player_pos[0]
-            self.rect.centery = position[1] - player_pos[1]
+        self.rect.centery = position[1] - player_pos[1]

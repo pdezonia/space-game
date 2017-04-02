@@ -1,58 +1,36 @@
 """
-|<--------------------------------------------------------------------------->|
-station.py defines a class for making instances of the space station, this
-needs to have its own class because the station is spit into two images and so
-is incompatible with ship.py, stations are stationary and maybe spin in place, 
-depends on whether I can get the ships to move with it.
-
-by Philip deZonia
-last modified: 2017-02-26
+|<-------------------------------------------------------------------------->|
+|<------------------------------------------------------------------->|
+station.py is a class definition for all space stations in the game.
+This is the refactored version of station.py
 """
 
-# import required modules (maybe reduntantly)
 import pygame
-import os, sys
-from math import *
+import loanne_sprite
 
-# import custom made modules
-from apple_cat_sprite import *
-from turret import *
-from physics import *
-from laser_generator import *
-import station_sprite
 
-class Station(pygame.sprite.Sprite):
-    def __init__(self, x_root, y_root, spin_speed, name): 
-        """initialize sprites and state variables"""
-        pygame.sprite.Sprite.__init__(self) # call sprite initializer
-        
-        self.pos = [x_root, y_root]
-        self.omega = spin_speed
-        
-        if name == "Loanne":
-            self.station_left = station_sprite.Loanne('L')
-            self.station_right = station_sprite.Loanne('R')
-        else:
-            # i don't have another station sprite for now
-            self.station_left = station_sprite.Loanne('L')
-            self.station_right = station_sprite.Loanne('R')
+class Station(object):
+    def __init__(self, station_type, starting_pos):
+        """choose station type and initialize health points"""
+        self.health_points = 100
+        self.position = starting_pos
+        if station_type == 'Loanne':
+            self._initialize_loanne()
             
-        # tie two havles together
-        self.whole_station = pygame.sprite.OrderedUpdates(self.station_left, \
-        self.station_right)
-        
-        # assign position
-        self.station_left.update_pos(self.pos)
-        self.station_right.update_pos(self.pos)
-
-    def motion(self, player_pos = [0, 0]):
-        """update position of station, station doesn't really move relative to
-        world coords but has to have screen position changed as player ship moves,
-        only takes player ship world pos as its arguments"""
-        self.station_left.update_pos(self.pos, player_pos)
-        self.station_right.update_pos(self.pos, player_pos)
+    def _initialize_loanne(self):
+        """load both halves"""
+        self.left_half = loanne_sprite.LoanneSprite('L')
+        self.right_half = loanne_sprite.LoanneSprite('R')
+        self.whole_station = pygame.sprite.OrderedUpdates(self.left_half, 
+                                                          self.right_half)
+    
+    def motion(self, player_pos):
+        """the ship isn't actually moving but its position on the screen
+        has to change relative to the player."""
+        self.left_half.update_pos(self.position, player_pos)
+        self.right_half.update_pos(self.position, player_pos)
     
     def render(self, game_window):
-        """render ship at root position, takes game surface object"""
-        self.whole_station.update()
+        """render station at relative position,
+        takes game screen object"""
         self.whole_station.draw(game_window)
