@@ -27,8 +27,11 @@ pygame.init()
 clock = pygame.time.Clock()
 window = pygame.display.set_mode((screen_width, screen_height))
 game_font = pygame.font.Font(None, 36)
-player_ship = ship.Ship('Applecat', [600, 450])
+player_pos = [600, 450]
+player_ship = ship.Ship('Applecat', player_pos)
 npc_ship = ship.Ship('Applecat', [1000, 600])
+station1 = station.Station('Loanne', [600, 1000])
+
 
 # game loop
 while not is_done:
@@ -51,11 +54,15 @@ while not is_done:
     mouse_y = pygame.mouse.get_pos()[1]
     turr_ang = degrees(atan2(-mouse_y + screen_height/2, 
                        mouse_x - screen_width/2))
-    player_pos = player_ship.motion(inputs, turr_ang)
+    player_pos = player_ship.motion(
+        inputs, turr_ang, [player_pos[0] - screen_width/2,
+        player_pos[1] - screen_height/2])
     npc_ship.motion([0, 0, 0, 0, 0, 0, 0], 0, player_pos)
+    station1.motion(player_pos)
     """ end of loop work """
     window.fill((50, 50, 50))
     player_ship.render(window)
     npc_ship.render(window)
+    station1.render(window)
     pygame.display.flip()
     clock.tick(60)

@@ -7,7 +7,8 @@ Issues:
     physics are inaccurate, ship immediately changes direction on 
     new thrust input; monoprop motion has no velocity
     might want to switch to cartesian system
-This is the refactored version of physics.py
+This is the refactored version of physics.py.
+Candidate for further refactoring: reduce mean function size.
 """
 
 from math import *
@@ -22,21 +23,20 @@ class Simulator(object):
         self.omega = 0
         self.delta_omega = 0
         self.thrust_angle = 0
-        self.rcs_disp = [0, 0]
-        self.accel = 1
+        self.accel = 0.2
         self.time_step = 1
         
-    
     def calculate_timestep(self, control_inputs):
         """ When shift is pressed, switch to rcs thrusters. Control
         inputs are as follows: forwards, backwards, clockwise,
-        counterclockwise, rcs_mode, reduced thrust, and auto halt.
+        counterclockwise, rcs_mode, reduced thrust, and drift canceler.
         """
+        rcs_disp = [0, 0]
         if control_inputs[4]:
-            if control_inputs[0]: self.rcs_disp[0] += 1
-            if control_inputs[1]: self.rcs_disp[0] -= 1
-            if control_inputs[2]: self.rcs_disp[1] += 1
-            if control_inputs[3]: self.rcs_disp[1] -= 1
+            if control_inputs[0]: rcs_disp[0] += 1
+            if control_inputs[1]: rcs_disp[0] -= 1
+            if control_inputs[2]: rcs_disp[1] += 1
+            if control_inputs[3]: rcs_disp[1] -= 1
         else:
             if control_inputs[0]:
                 self.delta_v += self.accel*0.1
@@ -68,10 +68,10 @@ class Simulator(object):
         self.heading += self.omega*self.time_step
         self.position[0] += (
             self.vel*self.time_step*cos(-radians(self.thrust_angle))
-            + self.rcs_disp[0]*cos(-radians(self.heading))
-            - self.rcs_disp[1]*sin(-radians(self.heading)))
+            + rcs_disp[0]*cos(-radians(self.heading))
+            - rcs_disp[1]*sin(-radians(self.heading)))
         self.position[1] += (
             self.vel*self.time_step*sin(-radians(self.thrust_angle))
-            + self.rcs_disp[0]*sin(-radians(self.heading))
-            -self.rcs_disp[1]*cos(-radians(self.heading)))
+            + rcs_disp[0]*sin(-radians(self.heading))
+            -rcs_disp[1]*cos(-radians(self.heading)))
         return self.position, self.vel, self.heading, self.omega, self.thrust_angle

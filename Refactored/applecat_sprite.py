@@ -14,6 +14,11 @@ import enhanced_sprite
 class ApplecatHullSprite(enhanced_sprite.EnhancedSprite):
     def __init__(self):
         """Change defualt sprite to the Applecat's hull."""
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = self.load_image('apple_cat small3.png')
-        self.original_image = self.image
+        self._create_sprite_image('apple_cat small3.png')
+        self._create_hitboxes()
+        
+    def _create_hitboxes(self):
+        self.hit_box_centers_and_radii = [
+                                          [0, 0, 5], 
+                                          [0, 10, 5],
+                                          [0, 20, 5]]

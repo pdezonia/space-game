@@ -15,7 +15,7 @@ from enhanced_sprite import EnhancedSprite
 class Turret(EnhancedSprite):
     def __init__(self):
         """This method is meant to be overridden. Loads Applecat
-        by defualt.
+        by default.
         """
         self.barrel_length = 24
         self.relative_x_offset = 0
@@ -24,7 +24,8 @@ class Turret(EnhancedSprite):
             self.load_image('turret_small_AC.png'))
         self.original_image = self.image
     
-    def update_pos(self, ship_pos, ship_angle, turret_angle):
+    def update_pos(self, ship_pos, ship_angle, 
+                   turret_angle, player_pos=[0, 0]):
         """Move with ship and rotate sprite image."""
         center_vector_relative = [
             self.relative_x_offset*cos(-ship_angle*pi/180)
@@ -33,8 +34,9 @@ class Turret(EnhancedSprite):
             + self.relative_y_offset*cos(-ship_angle*pi/180)]
         center_vector_relative[0] = int(center_vector_relative[0])
         center_vector_relative[1] = int(center_vector_relative[1])
-        center_vector_total = [ship_pos[0] + center_vector_relative[0],
-            ship_pos[1] + center_vector_relative[1]]
+        center_vector_total = [ship_pos[0] + center_vector_relative[0]
+            - player_pos[0], ship_pos[1] + center_vector_relative[1]
+            - player_pos[1]]
         self.image = pygame.transform.rotate(self.original_image,
                                              turret_angle)
         self.rect = self.image.get_rect()

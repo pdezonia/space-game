@@ -20,10 +20,10 @@ class SpaceStationSprite(enhanced_sprite.EnhancedSprite):
         pygame.sprite.Sprite.__init__(self)
         if self.side_id == 'L':
             self.image, self.rect = self.load_image(
-                'station left half large.png')
+                'station left half large.png', -1)
         else:
             self.image, self.rect = self.load_image(
-                'station right half large.png')
+                'station right half large.png', -1)
         self.original_image = self.image
     
     def update_pos(self, position, player_pos=[0, 0]):
@@ -35,4 +35,4 @@ class SpaceStationSprite(enhanced_sprite.EnhancedSprite):
             self.rect.right = position[0] - player_pos[0]
         else:
             self.rect.left = position[0] - player_pos[0]
-        self.rect.centery = position[1]
+        self.rect.centery = position[1] - player_pos[1]
