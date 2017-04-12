@@ -15,7 +15,7 @@ from enhanced_sprite import EnhancedSprite
 class Turret(EnhancedSprite):
     def __init__(self):
         """This method is meant to be overridden. Loads Applecat
-        by defualt.
+        by default.
         """
         self.barrel_length = 24
         self.relative_x_offset = 0

@@ -23,7 +23,6 @@ class Ship(object):
         start_location = starting_pos
         self.model = physics.Simulator(start_location)
 
-
     def _initialize_applecat(self):
         self.hull_sprite = applecat_sprite.ApplecatHullSprite()
         self.whole_ship = pygame.sprite.OrderedUpdates(self.hull_sprite)
@@ -32,7 +31,6 @@ class Ship(object):
             x = applecat_turret.ApplecatTurret(i + 1)
             self.turret_list.append(x)
             self.whole_ship.add(x)
-
 
     def motion(self, input_list, turret_angle, player_pos=[0, 0]):
         """Update the position of ship. inputs is a list of flags for
@@ -49,8 +47,17 @@ class Ship(object):
                 self.turret_list[i].update_pos(position, heading,
                                                turret_angle, player_pos))
         return position
-    
-    
+      
+    def fire_lasers(self):
+        """Broadcast laser beam trajectories by sending out streams of
+        points along a lines from each turret."""
+        pass
+       
+    def check_damage(self):
+        """Check for laser beams from other ships that overlap manually
+        defined bounding box."""
+        pass
+      
     def render(self, game_window):
         """Render ship at new position and angle"""
         self.whole_ship.draw(game_window)

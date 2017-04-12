@@ -19,8 +19,8 @@ class LoanneSprite(station_sprite.SpaceStationSprite):
         pygame.sprite.Sprite.__init__(self)
         if self.side_id == 'L':
             self.image, self.rect = self.load_image(
-                'station left half large.png')
+                'station left half large.png', -1)
         else:
             self.image, self.rect = self.load_image(
-                'station right half large.png')
+                'station right half large.png', -1)
         self.original_image = self.image
