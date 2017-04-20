@@ -42,6 +42,8 @@ while not is_done:
             is_done = True
     # [w, s, d, a, shift, ctrl, space]
     inputs = [0, 0, 0, 0, 0, 0, 0]
+    laser_list = []
+    # candidate for putting in a function
     if pygame.key.get_pressed()[pygame.K_w]: inputs[0] = 1
     if pygame.key.get_pressed()[pygame.K_s]: inputs[1] = 1
     if pygame.key.get_pressed()[pygame.K_a]: inputs[3] = 1
@@ -57,6 +59,12 @@ while not is_done:
     player_pos = player_ship.motion(
         inputs, turr_ang, [player_pos[0] - screen_width/2,
         player_pos[1] - screen_height/2])
+    
+    if pygame.mouse.get_pressed()[0]: 
+        for beam in player_ship.fire_lasers():
+            laser_list.append(beam)
+    
+    npc_ship.check_damage(laser_list)
     npc_ship.motion([0, 0, 0, 0, 0, 0, 0], 0, player_pos)
     station1.motion(player_pos)
     """ end of loop work """

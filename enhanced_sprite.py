@@ -56,26 +56,23 @@ class EnhancedSprite(pygame.sprite.Sprite):
         """
         number_of_hits = 0
         for beam in incoming_beams:
-            length, angle, x0, y0 = beam
+            length, angle, laser_origin = beam
             angle = radians(angle)
-            beam_points = range(0, length, dot_spacing)
+            beam_points = self._beam_arg_interpret(length, angle, laser_origin)
             for point in beam_points:
-                beam_point_coord = [x0 + point*cos(angle),
-                                    y0 + point*sin(angle)]
                 for hitbox in self.hit_box_centers_and_radii:
-                    if self._dist([hitbox[0], hitbox[1]],
-                                   beam_point_coord) < hitbox[2]:
+                    if self._dist([hitbox[0], hitbox[1]], point) < hitbox[2]:
                         number_of_hits += 1
         return number_of_hits
         
     def _dist(self, point1, point2):
-        """Return pythagorean distance between 
-        two points in cartesian space.
+        """Return pythagorean distance between two points in 
+        cartesian space.
         """
         return sqrt(
             (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))**2)
     
-    def beam_arg_interpret(length, theta, origin):
+    def _beam_arg_interpret(self, length, theta, origin):
         """Return a list of points given a laser beam's length, its
         angle relative to the game window horizontal, and its point of
         origin.

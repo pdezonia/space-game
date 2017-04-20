@@ -14,6 +14,7 @@ import enhanced_sprite
 class ApplecatHullSprite(enhanced_sprite.EnhancedSprite):
     def __init__(self):
         """Change defualt sprite to the Applecat's hull."""
+        self.dot_spacing = 10
         self._create_sprite_image('apple_cat small3.png')
         self._create_hitboxes()
         
