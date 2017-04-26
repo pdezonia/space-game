@@ -55,8 +55,8 @@ class Ship(object):
         points along a lines from each turret.
         """
         # currently testing with just one turret
-        print("firing")
-        print(self.t_pos[0])
+        # print("firing")
+        # print(self.t_pos[0])
         return [[10000, self.turret_angle, self.t_pos[0]],
                 [10000, self.turret_angle, self.t_pos[1]]]
        

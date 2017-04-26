@@ -20,6 +20,6 @@ class ApplecatHullSprite(enhanced_sprite.EnhancedSprite):
         
     def _create_hitboxes(self):
         self.hit_box_centers_and_radii = [
-                                          [0, 0, 5], 
-                                          [0, 10, 5],
-                                          [0, 20, 5]]
+                                          [0, 0, 50], 
+                                          [0, 10, 50],
+                                          [0, 20, 50]]
