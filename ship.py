@@ -6,6 +6,7 @@ game.
 This is the refactored version of ship.py
 """
 
+from math import *
 import pygame
 import physics
 import applecat_sprite
@@ -37,28 +38,26 @@ class Ship(object):
         """Update the position of ship. inputs is a list of flags for
         control inputs, they are: [fwd, bwd, cw, ccw, shift, ctrl,
         and spacebar. Return position so player ship position 
-        can be known to other sprites.
+        can be known to other sprites. Turret angle is in degrees.
         """
         position, velocity, heading, omega, thrust_angle = (
             self.model.calculate_timestep(input_list))
         self.hull_sprite.update_pos(position, heading, player_pos)
-        self.t_pos = [] # possibly overly inefficient section
+        self.t_positions = [] # possibly overly inefficient section
         for i in range(6):
-            self.t_pos.append(
+            self.t_positions.append(
                 self.turret_list[i].update_pos(position, heading,
                                                turret_angle, player_pos))
         self.turret_angle = turret_angle
         return position
       
     def fire_lasers(self):
-        """Broadcast laser beam trajectories by sending out streams of
-        points along a lines from each turret.
+        """Returns laser beam trajectories by returning the length of
+        the beam, the angle (in degrees), and its point of origin for
+        each beam from each turret.
         """
         # currently testing with just one turret
-        # print("firing")
-        # print(self.t_pos[0])
-        return [[10000, self.turret_angle, self.t_pos[0]],
-                [10000, self.turret_angle, self.t_pos[1]]]
+        return [[10000, self.turret_angle, self.t_positions[0]]]
        
     def check_damage(self, beam_list):
         """Check for laser beams from other ships that overlap manually
@@ -76,14 +75,14 @@ class Ship(object):
         filtered_beams = []
         for beam in raw_beams:
             # currently testing with just one turret
-            if not self._check_inclusion(beam[2], self.t_pos[0]):
+            if not self._check_inclusion(beam[2], self.t_positions):
                 filtered_beams.append(beam)
         return filtered_beams
     
-    def _check_inclusion(self, point_a, point_set):
+    def _check_inclusion(self, point_a, turret_muzzles):
         """Check if point A is one of the points in point set."""
         match_exists = False
-        for point_b in point_set:
+        for point_b in turret_muzzles:
             if point_a == point_b:
                 match_exists = True
         return match_exists

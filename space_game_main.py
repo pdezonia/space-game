@@ -14,6 +14,8 @@ from math import *
 import pygame
 import ship
 import station
+# this is an old module from before refactoring
+import laser_generator
 
 # initialize variables
 is_done = False
@@ -63,14 +65,17 @@ while not is_done:
     if pygame.mouse.get_pressed()[0]: 
         for beam in player_ship.fire_lasers():
             laser_list.append(beam)
-    
+            
     npc_ship.check_damage(laser_list)
+    player_ship.check_damage(laser_list)
     npc_ship.motion([0, 0, 0, 0, 0, 0, 0], 0, player_pos)
     station1.motion(player_pos)
-    """ end of loop work """
+    """ end of loop work (put it all in a function!)"""
     window.fill((50, 50, 50))
     player_ship.render(window)
     npc_ship.render(window)
     station1.render(window)
+    if len(laser_list) > 0:
+        laser_generator.draw_laser(laser_list[0][2], laser_list[0][1], window)
     pygame.display.flip()
-    clock.tick(60)
+    clock.tick(26)

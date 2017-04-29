@@ -45,6 +45,7 @@ class EnhancedSprite(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(
             self.original_image, angular_offset)
         self.rect = self.image.get_rect()
+        self.sprite_center = sprite_center
         self.rect.centerx = sprite_center[0] - player_pos[0]
         self.rect.centery = sprite_center[1] - player_pos[1]
         
@@ -56,12 +57,15 @@ class EnhancedSprite(pygame.sprite.Sprite):
         """
         number_of_hits = 0
         for beam in incoming_beams:
+            print(beam)
             length, angle, laser_origin = beam
-            angle = radians(angle)
+            print(length, angle, laser_origin)
             beam_points = self._beam_arg_interpret(length, angle, laser_origin)
             for point in beam_points:
                 for hitbox in self.hit_box_centers_and_radii:
-                    if self._dist([hitbox[0], hitbox[1]], point) < hitbox[2]:
+                    if (self._dist([self.rect.centerx + hitbox[0], 
+                                    self.rect.centery + hitbox[1]], 
+                                    point) < hitbox[2]):
                         number_of_hits += 1
         return number_of_hits
         
@@ -74,16 +78,18 @@ class EnhancedSprite(pygame.sprite.Sprite):
     
     def _beam_arg_interpret(self, length, theta, origin):
         """Return a list of points given a laser beam's length, its
-        angle relative to the game window horizontal, and its point of
-        origin.
+        angle (in degrees) relative to the game window horizontal, 
+        and its point of origin.
+        To be clear, the format is 
+        [length of beam, angle of beam, [x origin, y origin]].
         """
         point_list = []
         # r is the length a point is from the origin of the laser beam
         # and is between 0 and length
         r = 0 
         while r < length:
-            x = origin[0] + r*cos(theta)
-            y = origin[1] + r*sin(theta)
+            x = origin[0] + r*cos(radians(theta))
+            y = origin[1] + r*sin(radians(theta))
             point_list.append([x, y])
             r += self.dot_spacing
         return point_list
