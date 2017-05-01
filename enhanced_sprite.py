@@ -44,31 +44,43 @@ class EnhancedSprite(pygame.sprite.Sprite):
         """
         self.image = pygame.transform.rotate(
             self.original_image, angular_offset)
+        self._update_hitbox_pos(sprite_center, angular_offset)
         self.rect = self.image.get_rect()
         self.sprite_center = sprite_center
         self.rect.centerx = sprite_center[0] - player_pos[0]
         self.rect.centery = sprite_center[1] - player_pos[1]
         
+        
+    def _update_hitbox_pos(self, ship_center, ship_angle):
+        self.hitbox_zones = []
+        for hitbox in self.hitbox_offsets_and_radii:
+            hitbox_global_x_coord = (ship_center[0] 
+                                     + cos(-radians(ship_angle))*hitbox[0]
+                                     - sin(-radians(ship_angle))*hitbox[1])
+            hitbox_global_y_coord = (ship_center[1]
+                                     + sin(-radians(ship_angle))*hitbox[0]
+                                     - cos(-radians(ship_angle))*hitbox[1])
+            self.hitbox_zones.append(
+                [hitbox_global_x_coord, hitbox_global_y_coord, hitbox[2]])
+            print(hitbox_global_x_coord, hitbox_global_y_coord, hitbox[2])
+        
     def overlap_detector(self, incoming_beams):
         """Takes list of lines and counts how many overlap with sprite
-        hitbox cirlces. Lines are expressed as (length, angle, origin)
+        hitbox circles. Lines are expressed as (length, angle, origin)
         Returns number of lines that overlap with at
         least one circle.
         """
         number_of_hits = 0
         for beam in incoming_beams:
-            print(beam)
+            #print(beam)
             length, angle, laser_origin = beam
-            print(length, angle, laser_origin)
             beam_points = self._beam_arg_interpret(length, angle, laser_origin)
             for point in beam_points:
-                for hitbox in self.hit_box_centers_and_radii:
-                    if (self._dist([self.rect.centerx + hitbox[0], 
-                                    self.rect.centery + hitbox[1]], 
-                                    point) < hitbox[2]):
+                for hitbox in self.hitbox_zones:
+                    if self._dist([hitbox[0], hitbox[1]], point) < hitbox[2]:
                         number_of_hits += 1
         return number_of_hits
-        
+    
     def _dist(self, point1, point2):
         """Return pythagorean distance between two points in 
         cartesian space.

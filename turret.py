@@ -4,6 +4,7 @@
 turret.py is a class definition for spaceship turrets it serves as a
 base class for ship specific turrets. Extending classes will replace
 the sprite image and relative turret locations on the ship.
+update_pos needs to have legibility improved.
 This is a refactored version of turret.py.
 """
 
@@ -26,7 +27,10 @@ class Turret(EnhancedSprite):
     
     def update_pos(self, ship_pos, ship_angle, 
                    turret_angle, player_pos=[0, 0]):
-        """Move with ship and rotate sprite image."""
+        """Move with ship and rotate sprite image. Returns the absolute
+        position of the muzzle of the turret barrel. Possibly 
+        unnecessary default for player_pos.
+        """
         center_vector_relative = [
             self.relative_x_offset*cos(-ship_angle*pi/180)
             - self.relative_y_offset*sin(-ship_angle*pi/180),
@@ -34,13 +38,15 @@ class Turret(EnhancedSprite):
             + self.relative_y_offset*cos(-ship_angle*pi/180)]
         center_vector_relative[0] = int(center_vector_relative[0])
         center_vector_relative[1] = int(center_vector_relative[1])
-        center_vector_total = [ship_pos[0] + center_vector_relative[0]
-            - player_pos[0], ship_pos[1] + center_vector_relative[1]
-            - player_pos[1]]
+        center_vector_total = [ship_pos[0] + center_vector_relative[0], 
+                               ship_pos[1] + center_vector_relative[1]]
+        center_vector_total_screencoords = [
+            center_vector_total[0] - player_pos[0],
+            center_vector_total[1] - player_pos[1]]
         self.image = pygame.transform.rotate(self.original_image,
                                              turret_angle)
         self.rect = self.image.get_rect()
-        self.rect.center = center_vector_total
+        self.rect.center = center_vector_total_screencoords
         barrel_muzzle_pos_rel = [
             self.barrel_length*cos(-turret_angle*pi/180),
             self.barrel_length*sin(-turret_angle*pi/180)]

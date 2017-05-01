@@ -13,13 +13,15 @@ import enhanced_sprite
 
 class ApplecatHullSprite(enhanced_sprite.EnhancedSprite):
     def __init__(self):
-        """Change defualt sprite to the Applecat's hull."""
+        """Change default sprite to the Applecat's hull."""
         self.dot_spacing = 10
         self._create_sprite_image('apple_cat small3.png')
         self._create_hitboxes()
         
     def _create_hitboxes(self):
-        self.hit_box_centers_and_radii = [
-                                          [0, 0, 50], 
-                                          [0, 10, 50],
-                                          [0, 20, 50]]
+        """For each turret, there is one 3-tuple of numbers which
+        represent x offset, y offset, and radius. X and y offsets are
+        to be used in the ship-local coordinate system.
+        """
+        self.hitbox_offsets_and_radii = [[0, 0, 50],
+                                         [-20, 0, 50], [20, 0, 50]]
