@@ -36,7 +36,7 @@ class EnhancedSprite(pygame.sprite.Sprite):
         self.hit_box_centers_and_radii = []
     
     def update_pos(self, sprite_center, 
-                   angular_offset, player_pos=[0, 0]):
+                   angular_offset, game_window, player_pos=[0, 0]):
         """player_pos is used to offset sprites other than those of
         player ship to make the world move around the player. This
         method modifies the sprite properties centerx, centery, rect,
@@ -44,14 +44,14 @@ class EnhancedSprite(pygame.sprite.Sprite):
         """
         self.image = pygame.transform.rotate(
             self.original_image, angular_offset)
-        self._update_hitbox_pos(sprite_center, angular_offset)
+        self._update_hitbox_pos(sprite_center, angular_offset, game_window)
         self.rect = self.image.get_rect()
         self.sprite_center = sprite_center
         self.rect.centerx = sprite_center[0] - player_pos[0]
         self.rect.centery = sprite_center[1] - player_pos[1]
         
         
-    def _update_hitbox_pos(self, ship_center, ship_angle):
+    def _update_hitbox_pos(self, ship_center, ship_angle, game_window):
         self.hitbox_zones = []
         for hitbox in self.hitbox_offsets_and_radii:
             hitbox_global_x_coord = (ship_center[0] 
@@ -62,9 +62,13 @@ class EnhancedSprite(pygame.sprite.Sprite):
                                      - cos(-radians(ship_angle))*hitbox[1])
             self.hitbox_zones.append(
                 [hitbox_global_x_coord, hitbox_global_y_coord, hitbox[2]])
-            print(hitbox_global_x_coord, hitbox_global_y_coord, hitbox[2])
+            pygame.draw.circle(
+                game_window, (255, 0, 0), 
+                [int(hitbox_global_x_coord), int(hitbox_global_y_coord)], 
+                hitbox[2] + 10)
+            #print(int(hitbox_global_x_coord), int(hitbox_global_y_coord))
         
-    def overlap_detector(self, incoming_beams):
+    def overlap_detector(self, incoming_beams, game_window):
         """Takes list of lines and counts how many overlap with sprite
         hitbox circles. Lines are expressed as (length, angle, origin)
         Returns number of lines that overlap with at
@@ -72,9 +76,10 @@ class EnhancedSprite(pygame.sprite.Sprite):
         """
         number_of_hits = 0
         for beam in incoming_beams:
-            #print(beam)
+            print(beam)
             length, angle, laser_origin = beam
-            beam_points = self._beam_arg_interpret(length, angle, laser_origin)
+            beam_points = self._beam_arg_interpret(length, angle, 
+                laser_origin, game_window)
             for point in beam_points:
                 for hitbox in self.hitbox_zones:
                     if self._dist([hitbox[0], hitbox[1]], point) < hitbox[2]:
@@ -88,7 +93,7 @@ class EnhancedSprite(pygame.sprite.Sprite):
         return sqrt(
             (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))**2)
     
-    def _beam_arg_interpret(self, length, theta, origin):
+    def _beam_arg_interpret(self, length, theta, origin, game_window):
         """Return a list of points given a laser beam's length, its
         angle (in degrees) relative to the game window horizontal, 
         and its point of origin.
@@ -100,10 +105,13 @@ class EnhancedSprite(pygame.sprite.Sprite):
         # and is between 0 and length
         r = 0 
         while r < length:
-            x = origin[0] + r*cos(radians(theta))
-            y = origin[1] + r*sin(radians(theta))
+            x = origin[0] + r*cos(-radians(theta))
+            y = origin[1] + r*sin(-radians(theta))
             point_list.append([x, y])
+            pygame.draw.circle(game_window, (255, 255, 255), 
+                [int(x), int(y)], 1)
             r += self.dot_spacing
+        #print point_list
         return point_list
     
     def load_image(self, name, colorkey=None):

@@ -34,7 +34,7 @@ class Ship(object):
             self.turret_list.append(x)
             self.whole_ship.add(x)
 
-    def motion(self, input_list, turret_angle, player_pos=[0, 0]):
+    def motion(self, input_list, turret_angle, game_window, player_pos=[0, 0]):
         """Update the position of ship. inputs is a list of flags for
         control inputs, they are: [fwd, bwd, cw, ccw, shift, ctrl,
         and spacebar. Return position so player ship position 
@@ -42,7 +42,8 @@ class Ship(object):
         """
         position, velocity, heading, omega, thrust_angle = (
             self.model.calculate_timestep(input_list))
-        self.hull_sprite.update_pos(position, heading, player_pos)
+        self.hull_sprite.update_pos(position, heading, 
+                                    game_window, player_pos)
         self.t_positions = [] # possibly overly inefficient section
         for i in range(6):
             self.t_positions.append(
@@ -59,12 +60,13 @@ class Ship(object):
         # currently testing with just one turret
         return [[10000, self.turret_angle, self.t_positions[0]]]
        
-    def check_damage(self, beam_list):
+    def check_damage(self, beam_list, game_window):
         """Check for laser beams from other ships that overlap manually
         defined bounding box. Need to filter out beams from own ship.
         """
         filtered_beam_list = self._filter_beam_list(beam_list)
-        damage = self.hull_sprite.overlap_detector(filtered_beam_list)
+        damage = self.hull_sprite.overlap_detector(
+        filtered_beam_list, game_window)
         self.health_points -= damage
         if self.health_points <= 0:
             self.hull_sprite.kill()
