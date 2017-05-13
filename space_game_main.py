@@ -14,8 +14,8 @@ from math import *
 import pygame
 import ship
 import station
-# this is an old module from before refactoring
-import laser_generator
+import laser_generator # this is an old module from before refactoring
+import coordinate_converter as coord_conv
 
 # initialize variables
 is_done = False
@@ -58,22 +58,25 @@ while not is_done:
     mouse_y = pygame.mouse.get_pos()[1]
     turr_ang = degrees(atan2(-mouse_y + screen_height/2, 
                        mouse_x - screen_width/2))
-    player_pos = player_ship.motion(inputs, turr_ang, window)
+    player_pos = player_ship.motion(inputs, turr_ang, window, player_pos)
     
     if pygame.mouse.get_pressed()[0]: 
         for beam in player_ship.fire_lasers():
             laser_list.append(beam)
             
     player_ship.check_damage(laser_list, window)
-    npc_ship.motion([0, 0, 0, 0, 0, 0, 0], 0, window)
-    station1.motion()
+    npc_ship.motion([0, 0, 0, 0, 0, 0, 0], 0, window, player_pos)
+    station1.motion(window, player_pos)
     """ end of loop work (put it all in a function!)"""
     window.fill((50, 50, 50))
     player_ship.render(window)
     npc_ship.render(window)
     station1.render(window)
     npc_ship.check_damage(laser_list, window)
+    # Warning!!!: Unsafe levels of janky code
     if len(laser_list) > 0:
-        laser_generator.draw_laser(laser_list[0][2], laser_list[0][1], window)
+        janky_conv_A = [x - y for x, y in zip(player_pos, [screen_width/2, screen_height/2])]
+        janky_conv_B = [x - y for x, y in zip(laser_list[0][2], janky_conv_A)]
+        laser_generator.draw_laser(janky_conv_B, laser_list[0][1], window)
     pygame.display.flip()
-    clock.tick(26)
+    clock.tick(30)

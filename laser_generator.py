@@ -30,13 +30,13 @@ class LaserBeam(apple_cat_sprite.Applecat):
         self.rect.centery = start_point[1] + 1024*sin(radians(angle))
 
 def draw_laser(origin_point, angle, screen_object):
-    """ draw a thin rectangle from the point of origin and that is 
+    """ Draw a thin rectangle from the point of origin and that is 
     long enougth to go off the screen. Origin point is where the
     on-screen end of the laser should be given as pixel coordinates
     and angle is expressed in degrees, ccw is positive, and starts 
     pointing to the right. screen_object is the the main window."""
     # create local (global?) variables
-    end_point = [0, 0]    
+    end_point = [0, 0]
     # calculate end point
     end_point[0] = origin_point[0] + 1500*cos(-radians(angle))
     end_point[1] = origin_point[1] + 1500*sin(-radians(angle))

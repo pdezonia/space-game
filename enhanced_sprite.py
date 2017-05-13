@@ -10,6 +10,7 @@ import os
 import sys
 from math import *
 import pygame
+import coordinate_converter as coord_conv
 
 
 class EnhancedSprite(pygame.sprite.Sprite):
@@ -46,9 +47,10 @@ class EnhancedSprite(pygame.sprite.Sprite):
             self.original_image, angular_offset)
         self._update_hitbox_pos(sprite_center, angular_offset, game_window)
         self.rect = self.image.get_rect()
-        self.sprite_center = sprite_center
-        self.rect.centerx = sprite_center[0] - player_pos[0]
-        self.rect.centery = sprite_center[1] - player_pos[1]
+        self.sprite_center = coord_conv.det_screen_coords(
+            sprite_center, player_pos, game_window)
+        self.rect.centerx = self.sprite_center[0]
+        self.rect.centery = self.sprite_center[1]
         
         
     def _update_hitbox_pos(self, ship_center, ship_angle, game_window):
@@ -76,7 +78,6 @@ class EnhancedSprite(pygame.sprite.Sprite):
         """
         number_of_hits = 0
         for beam in incoming_beams:
-            print(beam)
             length, angle, laser_origin = beam
             beam_points = self._beam_arg_interpret(length, angle, 
                 laser_origin, game_window)
@@ -108,8 +109,6 @@ class EnhancedSprite(pygame.sprite.Sprite):
             x = origin[0] + r*cos(-radians(theta))
             y = origin[1] + r*sin(-radians(theta))
             point_list.append([x, y])
-            pygame.draw.circle(game_window, (255, 255, 255), 
-                [int(x), int(y)], 1)
             r += self.dot_spacing
         #print point_list
         return point_list

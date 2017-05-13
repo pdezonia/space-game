@@ -24,11 +24,11 @@ class Station(object):
         self.whole_station = pygame.sprite.OrderedUpdates(self.left_half, 
                                                           self.right_half)
     
-    def motion(self, player_pos=[0, 0]):
+    def motion(self, game_window, player_pos=[0, 0]):
         """the station isn't actually moving but its position on the screen
         has to change relative to the player."""
-        self.left_half.update_pos(self.position, player_pos)
-        self.right_half.update_pos(self.position, player_pos)
+        self.left_half.update_pos(self.position, game_window, player_pos)
+        self.right_half.update_pos(self.position, game_window, player_pos)
     
     def render(self, game_window):
         """render station at relative position,
