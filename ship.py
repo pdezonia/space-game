@@ -22,7 +22,8 @@ class Ship(object):
         if ship_type == 'Applecat':
             self._initialize_applecat()
         start_location = starting_pos
-        self.model = physics.Simulator(start_location)
+        self.model = physics.Simulator(
+            start_location, 68000, 13237333, 1000000)
         self.turret_angle = 0
 
     def _initialize_applecat(self):
@@ -40,8 +41,7 @@ class Ship(object):
         and spacebar. Return position so player ship position 
         can be known to other sprites. Turret angle is in degrees.
         """
-        position, velocity, heading, omega, thrust_angle = (
-            self.model.calculate_timestep(input_list))
+        position, heading, = (self.model.calculate_timestep(input_list))
         self.hull_sprite.update_pos(position, heading, 
                                     game_window, player_pos)
         self.t_positions = [] # possibly overly inefficient section

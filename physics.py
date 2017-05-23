@@ -4,9 +4,6 @@
 physics.py is a class definition holding functions for the "physics"
 engine.
 Issues:
-    physics are inaccurate, ship immediately changes direction on 
-    new thrust input; monoprop motion has no velocity
-    might want to switch to cartesian system
 This is the refactored version of physics.py.
 Candidate for further refactoring: reduce mean function size.
 """
@@ -15,63 +12,69 @@ from math import *
 
 
 class Simulator(object):
-    def __init__(self, start_location):
-        self.position = start_location
-        self.vel = 0
-        self.delta_v = 0
-        self.heading = 0
-        self.omega = 0
-        self.delta_omega = 0
-        self.thrust_angle = 0
-        self.accel = 0.2
-        self.time_step = 1
+    def __init__(self, start_location, mass, rot_inert, motor_thrust):
+        """Initialize physical attributes of ship: position, attitude, 
+        mass, velocity, and rocket motor thrust. 
+        Also set conversion ratios between physical and game 
+        measurements.
+        """
+        # conversions
+        self.metres_p_pix = 0.2 # metres/pixel
+        self.time_p_step = 0.03 # seconds/timestep aka 30fps
+        
+        # physical attributes
+        self.mass = mass # kg (68000kg is space shuttle)
+        self.motor_thrust = motor_thrust # N
+        self.rotor_thrust = motor_thrust*50
+        self.rot_inert = rot_inert
+        
+        # state
+        self.pos = [start_location[0]*self.metres_p_pix, 
+                    start_location[1]*self.metres_p_pix]
+        self.heading = 0 # degrees ccw from right
+        self.vel = [0, 0] # m/s - magnitude
+        self.omega = 0 # degrees/s
+        
         
     def calculate_timestep(self, control_inputs):
         """ When shift is pressed, switch to rcs thrusters. Control
         inputs are as follows: forwards, backwards, clockwise,
         counterclockwise, rcs_mode, reduced thrust, and drift canceler.
         """
-        rcs_disp = [0, 0]
-        if control_inputs[4]:
-            if control_inputs[0]: rcs_disp[0] += 1
-            if control_inputs[1]: rcs_disp[0] -= 1
-            if control_inputs[2]: rcs_disp[1] += 1
-            if control_inputs[3]: rcs_disp[1] -= 1
-        else:
-            if control_inputs[0]:
-                self.delta_v += self.accel*0.1
-                self.thrust_angle = self.heading
-            if control_inputs[1]:
-                self.delta_v -= self.accel*0.1
-                self.thrust_angle = self.heading
-            if control_inputs[3]: self.delta_omega += self.accel*0.1
-            if control_inputs[2]: self.delta_omega -= self.accel*0.1
-        if control_inputs[5]:
-            self.delta_omega *= 0.5
-            self.delta_v *= 0.5
-        if control_inputs[0] == False and control_inputs[1] == False:
-            self.delta_v = 0
-        if control_inputs[3] == False and control_inputs[2] == False:
-            self.delta_omega = 0
+        lin_accel = self.motor_thrust/self.mass
+        rot_accel = self.rotor_thrust/self.rot_inert
         
-        self.vel += self.delta_v
-        self.omega += self.delta_omega
-        if self.vel > 5: self.vel = 5
-        if self.vel < -5: self.vel = -5
-        if self.omega > 5: self.omega = 5
-        if self.omega < -5: self.omega = -5
-        if abs(self.vel) < 0.1: self.vel = 0
-        if abs(self.omega) < 0.1: self.omega = 0
+        # velocity controls
+        delta_v = lin_accel*self.time_p_step
+        if control_inputs[0]:
+            self.vel[0] += delta_v*cos(-radians(self.heading))
+            self.vel[1] += delta_v*sin(-radians(self.heading))
+        if control_inputs[1]:
+            self.vel[0] -= delta_v*cos(-radians(self.heading))
+            self.vel[1] -= delta_v*sin(-radians(self.heading))
+        
+        # rotation controls
+        delta_omega = rot_accel*self.time_p_step
+        if control_inputs[2]: self.omega -= delta_omega
+        if control_inputs[3]: self.omega += delta_omega
+        
+        # put rcs code here
+        
+        # put thrust adjuster code here
+        
+        # drift canceler
         if control_inputs[6]:
-            self.vel = self.vel*0.9
+            self.vel = [x*0.9 for x in self.vel]
             self.omega = self.omega*0.9
-        self.heading += self.omega*self.time_step
-        self.position[0] += (
-            self.vel*self.time_step*cos(-radians(self.thrust_angle))
-            + rcs_disp[0]*cos(-radians(self.heading))
-            - rcs_disp[1]*sin(-radians(self.heading)))
-        self.position[1] += (
-            self.vel*self.time_step*sin(-radians(self.thrust_angle))
-            + rcs_disp[0]*sin(-radians(self.heading))
-            -rcs_disp[1]*cos(-radians(self.heading)))
-        return self.position, self.vel, self.heading, self.omega, self.thrust_angle
+        
+        # position updates
+        displacement = [x*self.time_p_step for x in self.vel]
+        self.pos = [x + y for x, y in zip(self.pos, displacement)]
+        self.heading += self.omega
+        
+        # convert position to pixels
+        pix_pos = [x/self.metres_p_pix for x in self.pos]
+        
+        return pix_pos, self.heading
+        
+        

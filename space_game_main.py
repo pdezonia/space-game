@@ -67,7 +67,7 @@ while not is_done:
     player_ship.check_damage(laser_list, window)
     npc_ship.motion([0, 0, 0, 0, 0, 0, 0], 0, window, player_pos)
     station1.motion(window, player_pos)
-    """ end of loop work (put it all in a function!)"""
+    """End of loop work (put it all in a function!)"""
     window.fill((50, 50, 50))
     player_ship.render(window)
     npc_ship.render(window)

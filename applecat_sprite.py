@@ -4,6 +4,10 @@
 applecat_sprite.py is a class definition for the Applecat spaceship.
 This is also the starting point for the campaign to spell Applecat
 without a space and with only one uppercase letter.
+
+The Applecat is around 44m long, 20m wide, has a mass of 68000kg, 
+moment of inertia of 13237333 kg*m^2, and effective thrust of 1000N(?).
+
 This is the refactored version of apple_cat_sprite.py.
 """
 
@@ -23,5 +27,5 @@ class ApplecatHullSprite(enhanced_sprite.EnhancedSprite):
         represent x offset, y offset, and radius. X and y offsets are
         to be used in the ship-local coordinate system.
         """
-        self.hitbox_offsets_and_radii = [[0, 0, 50],
-                                         [-20, 0, 50], [20, 0, 50]]
+        self.hitbox_offsets_and_radii = [[0, 0, 65],
+                                         [-50, 0, 65], [60, 0, 65]]
