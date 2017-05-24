@@ -58,7 +58,12 @@ class Ship(object):
         each beam from each turret.
         """
         # currently testing with just one turret
-        return [[10000, self.turret_angle, self.t_positions[0]]]
+        return [[10000, self.turret_angle, self.t_positions[0]],
+                [10000, self.turret_angle, self.t_positions[1]],
+                [10000, self.turret_angle, self.t_positions[2]],
+                [10000, self.turret_angle, self.t_positions[3]],
+                [10000, self.turret_angle, self.t_positions[4]],
+                [10000, self.turret_angle, self.t_positions[5]]]
        
     def check_damage(self, beam_list, game_window):
         """Check for laser beams from other ships that overlap manually
