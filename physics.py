@@ -3,9 +3,6 @@
 |<------------------------------------------------------------------->|
 physics.py is a class definition holding functions for the "physics"
 engine.
-Issues:
-This is the refactored version of physics.py.
-Candidate for further refactoring: reduce mean function size.
 """
 
 from math import *

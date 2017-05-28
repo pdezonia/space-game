@@ -1,0 +1,21 @@
+Laser coordinate list handling
+
+turret.py: 
+update pos returns [x, y] of the muzzle of a single 
+laser turret
+
+ship.py: 
+motion creates a list of positions (which are also 
+lists) one position for each turret [[x1, y1], [x2, y2], ..., 
+[xN, yN]]
+fire_lasers returns list created by motion but does this funky
+thing where it returns a list of a list accessed at the
+corresponding index
+
+space_game_main.py:
+whole file appends lists created by motion into one bigger list
+[[[x1, y1], [x2, y2], ..., [xN, yN]], [[x1, y1], [x2, y2], ..., [xN, yN]],
+[[x1, y1], [x2, y2], ..., [xN, yN]]]
+
+
+

@@ -11,6 +11,7 @@ import pygame
 import physics
 import applecat_sprite
 import applecat_turret
+import laser_generator
 
 
 class Ship(object):
@@ -25,6 +26,9 @@ class Ship(object):
         self.model = physics.Simulator(
             start_location, 68000, 13237333, 1000000)
         self.turret_angle = 0
+        # we will use this to pass the player position to fire_lasers
+        # so it can draw the lasers on its own
+        self.player_pos = [0, 0]
 
     def _initialize_applecat(self):
         self.hull_sprite = applecat_sprite.ApplecatHullSprite()
@@ -38,9 +42,12 @@ class Ship(object):
     def motion(self, input_list, turret_angle, game_window, player_pos=[0, 0]):
         """Update the position of ship. inputs is a list of flags for
         control inputs, they are: [fwd, bwd, cw, ccw, shift, ctrl,
-        and spacebar. Return position so player ship position 
-        can be known to other sprites. Turret angle is in degrees.
+        and spacebar]. Return position the player ship position 
+        can be known to other sprites in the event that this ship is 
+        the player ship and it needs to broadcast its position to all
+        other objects. Turret angle is in degrees.
         """
+        self.player_pos = player_pos
         position, heading, = (self.model.calculate_timestep(input_list))
         self.hull_sprite.update_pos(position, heading, 
                                     game_window, player_pos)
@@ -52,18 +59,28 @@ class Ship(object):
         self.turret_angle = turret_angle
         return position
       
-    def fire_lasers(self):
+    def fire_lasers(self, game_window, screen_width, screen_height):
         """Returns laser beam trajectories by returning the length of
         the beam, the angle (in degrees), and its point of origin for
         each beam from each turret.
         """
-        # currently testing with just one turret
-        return [[10000, self.turret_angle, self.t_positions[0]],
-                [10000, self.turret_angle, self.t_positions[1]],
-                [10000, self.turret_angle, self.t_positions[2]],
-                [10000, self.turret_angle, self.t_positions[3]],
-                [10000, self.turret_angle, self.t_positions[4]],
-                [10000, self.turret_angle, self.t_positions[5]]]
+        # turret obstruction detector "crossfire checker" goes here
+        """Loop through turrets, only appending beams to empy list
+        when obstruction detector says it's okay
+        """
+        beam_list = [[10000, self.turret_angle, self.t_positions[0]],
+                     [10000, self.turret_angle, self.t_positions[1]],
+                     [10000, self.turret_angle, self.t_positions[2]],
+                     [10000, self.turret_angle, self.t_positions[3]],
+                     [10000, self.turret_angle, self.t_positions[4]],
+                     [10000, self.turret_angle, self.t_positions[5]]]
+        for beam in beam_list:
+            screen_offset = [x - y for x, y in zip(self.player_pos, 
+                                [screen_width/2, screen_height/2])]
+            laser_origin = [x - y for x, y in zip(beam[2], screen_offset)]
+            #print(laser_origin)
+            laser_generator.draw_laser(laser_origin, beam[1], game_window)
+        return beam_list
        
     def check_damage(self, beam_list, game_window):
         """Check for laser beams from other ships that overlap manually

@@ -64,10 +64,10 @@ class EnhancedSprite(pygame.sprite.Sprite):
                                      - cos(-radians(ship_angle))*hitbox[1])
             self.hitbox_zones.append(
                 [hitbox_global_x_coord, hitbox_global_y_coord, hitbox[2]])
-            pygame.draw.circle(
+            """pygame.draw.circle(
                 game_window, (255, 0, 0), 
                 [int(hitbox_global_x_coord), int(hitbox_global_y_coord)], 
-                hitbox[2] + 10)
+                hitbox[2])"""
             #print(int(hitbox_global_x_coord), int(hitbox_global_y_coord))
         
     def overlap_detector(self, incoming_beams, game_window):
