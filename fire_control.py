@@ -23,7 +23,7 @@ class FireControl(object):
             self.clear_angles.append([[105, 125], [200, 245]])
             self.clear_angles.append([[0, 25], [55, 75], [195, 359]])
     
-    def check_blockage(self, turret_angle_list):
+    def check_blockage(self, turret_angle_list, ship_heading):
         """Given a list of turret angles, and already knowing the ship
         type, returns a copy of the list with the angles replaced by a
         true value indicating when the turret is blocked and a false
@@ -34,7 +34,13 @@ class FireControl(object):
             return
         is_blocked = []
         for turret_index in range(len(turret_angle_list)):
-            turret_angle = turret_angle_list[turret_index]
+            if turret_angle_list[turret_index] - ship_heading >= 0:
+                turret_angle = turret_angle_list[turret_index] - ship_heading
+            else:
+                # If angle is negative, convert to positive equivalent
+                turret_angle = (360 
+                                - turret_angle_list[turret_index]
+                                - ship_heading)
             is_clear = False
             for angle_set in self.clear_angles[turret_index]:
                 print angle_set[0], ', ', angle_set[1]
