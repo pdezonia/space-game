@@ -3,7 +3,7 @@
 |<------------------------------------------------------------------->|
 ship.py is a class definition for all self-propelled vessels in the
 game.
-This is the refactored version of ship.py
+This is the refactored version of ship.py.
 """
 
 from math import *
@@ -41,7 +41,7 @@ class Ship(object):
             x = applecat_turret.ApplecatTurret(i + 1)
             self.turret_list.append(x)
             self.whole_ship.add(x)
-        self.obst_check = fire_control.FireControl("Applecat")
+        self.shoot_check = fire_control.FireControl("Applecat")
         self.laser_range = 10000
 
     def motion(self, input_list, turret_angle, game_window, player_pos=[0, 0]):
@@ -59,10 +59,10 @@ class Ship(object):
         else:
             sign_factor = heading/abs(heading)
         # for fire control function
-        self.heading = abs(heading)%360*sign_factor 
+        self.heading = heading #abs(heading)%360*sign_factor 
         self.hull_sprite.update_pos(position, heading, 
                                     game_window, player_pos)
-        self.t_positions = [] # possibly overly inefficient section
+        self.t_positions = []
         for i in range(6):
             self.t_positions.append(
                 self.turret_list[i].update_pos(
@@ -75,25 +75,23 @@ class Ship(object):
         the beam, the angle (in degrees), and its point of origin for
         each beam from each turret.
         """
+        # turret laser problem identified: side-mounted lasers are mirrored
         """Loop through turrets, only appending beams to empy list
         when obstruction detector says it's okay
         """
-        turret_angle_list = [self.turret_angle]*6
+        # this replicates the angle six times in the list
+        turret_angle_list = [self.turret_angle]*6  
         # subtract heading to get relative angle of turret to ship
-        are_turrets_clear2fire = self.obst_check.check_blockage(
+        are_turrets_clear2fire = self.shoot_check.check_lineoffire(
                                          turret_angle_list, self.heading)
+        print are_turrets_clear2fire
         beam_list = []
         for turret_index in range(6):
             if are_turrets_clear2fire[turret_index]:
                 beam_list.append([self.laser_range, 
                                   turret_angle_list[turret_index],
                                   self.t_positions[turret_index]])
-        # beam_list = [[10000, self.turret_angle, self.t_positions[0]],
-                     # [10000, self.turret_angle, self.t_positions[1]],
-                     # [10000, self.turret_angle, self.t_positions[2]],
-                     # [10000, self.turret_angle, self.t_positions[3]],
-                     # [10000, self.turret_angle, self.t_positions[4]],
-                     # [10000, self.turret_angle, self.t_positions[5]]]
+                print turret_index
         """Draw each beam taking into account offset between game
         coordinates and screen coordinates.
         """

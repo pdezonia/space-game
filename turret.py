@@ -32,11 +32,12 @@ class Turret(EnhancedSprite):
         position of the muzzle of the turret barrel. Possibly 
         unnecessary default for player_pos.
         """
+        ship_angle_rads = ship_angle*pi/180
         center_vector_relative = [
-            self.relative_x_offset*cos(-ship_angle*pi/180)
-            - self.relative_y_offset*sin(-ship_angle*pi/180),
-            self.relative_x_offset*sin(-ship_angle*pi/180)
-            + self.relative_y_offset*cos(-ship_angle*pi/180)]
+              self.relative_x_offset*cos(-ship_angle_rads)
+            - self.relative_y_offset*sin(-ship_angle_rads),
+              self.relative_x_offset*sin(-ship_angle_rads)
+            + self.relative_y_offset*cos(-ship_angle_rads)]
         center_vector_relative[0] = int(center_vector_relative[0])
         center_vector_relative[1] = int(center_vector_relative[1])
         center_vector_total = [ship_pos[0] + center_vector_relative[0], 
