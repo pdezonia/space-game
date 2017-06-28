@@ -16,6 +16,7 @@ import ship
 import station
 import laser_generator # this is an old module from before refactoring
 import coordinate_converter as coord_conv
+import key_reader
 
 # initialize variables
 is_done = False
@@ -43,17 +44,8 @@ while not is_done:
         if (event.type == pygame.QUIT or (event.type == pygame.KEYDOWN 
             and event.key == pygame.K_ESCAPE)):
             is_done = True
-    # [w, s, d, a, shift, ctrl, space]
-    inputs = [0, 0, 0, 0, 0, 0, 0]
+    inputs = key_reader.get_key_inputs()
     laser_list = []
-    # candidate for putting in a function
-    if pygame.key.get_pressed()[pygame.K_w]: inputs[0] = 1
-    if pygame.key.get_pressed()[pygame.K_s]: inputs[1] = 1
-    if pygame.key.get_pressed()[pygame.K_a]: inputs[3] = 1
-    if pygame.key.get_pressed()[pygame.K_d]: inputs[2] = 1
-    if pygame.key.get_pressed()[pygame.K_LSHIFT]: inputs[4] = 1
-    if pygame.key.get_pressed()[pygame.K_LCTRL]: inputs[5] = 1
-    if pygame.key.get_pressed()[pygame.K_SPACE]: inputs[6] = 1
     # calculate turret angle
     mouse_x = pygame.mouse.get_pos()[0]
     mouse_y = pygame.mouse.get_pos()[1]
