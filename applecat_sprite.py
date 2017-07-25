@@ -29,3 +29,6 @@ class ApplecatHullSprite(enhanced_sprite.EnhancedSprite):
         """
         self.hitbox_offsets_and_radii = [[0, 0, 65],
                                          [-50, 0, 65], [60, 0, 65]]
+                                         
+    def switch_to_fwd_sprite(self):
+        pass

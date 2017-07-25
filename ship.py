@@ -18,7 +18,9 @@ import fire_control
 class Ship(object):
     def __init__(self, ship_type, starting_pos):
         """Initialize health, physics state, ship sprite and turret
-        type, and also handle dealing and receiving damage.
+        type, and also handle dealing and receiving damage. Fun fact:
+        the physical stats are loosely based on those of the STS Space
+        Shuttle at least for the Applecat.
         """
         self.health_points = 30
         if ship_type == 'Applecat':
