@@ -52,16 +52,18 @@ class Ship(object):
         and spacebar]. Return position the player ship position 
         can be known to other sprites in the event that this ship is 
         the player ship and it needs to broadcast its position to all
-        other objects. Turret angle is in degrees.
+        other objects. Turret angle is in degrees. Also changes the
+        sprite image to reflect the direction it is thrusting in.
         """
         self.player_pos = player_pos
+        self.change_sprites(input_list)
         position, heading, = (self.model.calculate_timestep(input_list))
         if heading == 0: 
             sign_factor = 1
         else:
             sign_factor = heading/abs(heading)
-        # for fire control function
-        self.heading = heading #abs(heading)%360*sign_factor 
+        # For fire control function
+        self.heading = heading 
         self.hull_sprite.update_pos(position, heading, 
                                     game_window, player_pos)
         self.t_positions = []
@@ -71,13 +73,27 @@ class Ship(object):
                     position, heading, turret_angle, game_window, player_pos))
         self.turret_angle = turret_angle
         return position
-      
+    
+    def change_sprites(self, input_list):
+        """Updates the sprite image to reflect which direction the ship
+        is thrusting in.
+        """
+        if input_list[0]:
+            self.hull_sprite.switch_to_fwd_sprite()
+        elif input_list[1]:
+            self.hull_sprite.switch_to_bwd_sprite()
+        elif input_list[2]:
+            self.hull_sprite.switch_to_cw_sprite()
+        elif input_list[3]:
+            self.hull_sprite.switch_to_ccw_sprite()
+        else:
+            self.hull_sprite.switch_to_neutral_sprite()
+    
     def fire_lasers(self, game_window, screen_width, screen_height):
         """Returns laser beam trajectories by returning the length of
         the beam, the angle (in degrees), and its point of origin for
         each beam from each turret.
         """
-        # turret laser problem identified: side-mounted lasers are mirrored
         """Loop through turrets, only appending beams to empy list
         when obstruction detector says it's okay
         """
@@ -86,14 +102,12 @@ class Ship(object):
         # subtract heading to get relative angle of turret to ship
         are_turrets_clear2fire = self.shoot_check.check_lineoffire(
                                          turret_angle_list, self.heading)
-        print are_turrets_clear2fire
         beam_list = []
         for turret_index in range(6):
             if are_turrets_clear2fire[turret_index]:
                 beam_list.append([self.laser_range, 
                                   turret_angle_list[turret_index],
                                   self.t_positions[turret_index]])
-                print turret_index
         """Draw each beam taking into account offset between game
         coordinates and screen coordinates.
         """

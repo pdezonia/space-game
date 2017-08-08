@@ -29,6 +29,18 @@ class ApplecatHullSprite(enhanced_sprite.EnhancedSprite):
         """
         self.hitbox_offsets_and_radii = [[0, 0, 65],
                                          [-50, 0, 65], [60, 0, 65]]
-                                         
+    
+    def switch_to_neutral_sprite(self):
+        self._update_sprite_image('apple_cat small3.png')
+    
     def switch_to_fwd_sprite(self):
-        pass
+        self._update_sprite_image('apple_cat small3 fwd.png')
+        
+    def switch_to_bwd_sprite(self):
+        self._update_sprite_image('apple_cat small3 bwd.png')
+        
+    def switch_to_ccw_sprite(self):
+        self._update_sprite_image('apple_cat small3 ccw.png')
+        
+    def switch_to_cw_sprite(self):
+        self._update_sprite_image('apple_cat small3 cw.png')

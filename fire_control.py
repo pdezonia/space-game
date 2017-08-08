@@ -46,8 +46,6 @@ class FireControl(object):
             is_clear = False
             # Check 
             for angle_set in self.clear_angles[turret_index]:
-                # print angle_set[0], ', ', angle_set[1]
-                print(turret_angle)
                 if (turret_angle >= angle_set[0] 
                     and turret_angle < angle_set[1]):
                     is_clear = True

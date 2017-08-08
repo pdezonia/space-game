@@ -30,7 +30,14 @@ class EnhancedSprite(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = self.load_image(file_name)
         self.original_image = self.image
-        
+    
+    def _update_sprite_image(self, new_file_name):
+        """Replaces current sprite image with new one, does not change
+        rectangle size, and updates original_image too.
+        """
+        self.image = self.load_image(new_file_name, -1)[0]
+        self.original_image = self.image
+    
     def _create_hitboxes(self):
         """Makes a list of circle centers and radii of form 
         [centerx, centery, radius]"""
