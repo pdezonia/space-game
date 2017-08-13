@@ -33,6 +33,7 @@ class Ship(object):
         # we will use this to pass the player position to fire_lasers
         # so it can draw the lasers on its own
         self.player_pos = [0, 0]
+        self.i_frame_number = 0 # Invincibility frame
 
     def _initialize_applecat(self):
         """Load stats and models applicable to the Applecat ship."""
@@ -121,16 +122,24 @@ class Ship(object):
        
     def check_damage(self, beam_list, game_window):
         """Check for laser beams from other ships that overlap manually
-        defined bounding box. Need to filter out beams from own ship.
+        defined bounding box. Does not count damage if ship was hit
+        recently. Currently has a variable that depends on frame rate 
+        of main loop and needs to be updated manually.
         """
         filtered_beam_list = self._filter_beam_list(beam_list)
         damage = self.hull_sprite.overlap_detector(
-        filtered_beam_list, game_window)
-        self.health_points -= damage
-        if self.health_points <= 0:
-            self.hull_sprite.kill()
-            for i in range(6):
-                self.turret_list[i].kill()
+            filtered_beam_list, game_window)
+        if self.i_frame_number > 60:
+            self.health_points -= damage
+            print damage, self.health_points
+            if damage > 0:
+                self.i_frame_number = 0
+            if self.health_points <= 0:
+                self.hull_sprite.kill()
+                for i in range(6):
+                    self.turret_list[i].kill()
+        else:
+            self.i_frame_number += 1
     
     def _filter_beam_list(self, raw_beams):
         filtered_beams = []
