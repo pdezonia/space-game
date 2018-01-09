@@ -8,6 +8,7 @@ This is the refactored version of ship.py.
 
 from math import *
 import pygame
+import cfg
 import physics
 import applecat_sprite
 import applecat_turret
@@ -17,35 +18,43 @@ import fire_control
 
 class Ship(object):
     def __init__(self, ship_type, starting_pos):
-        """Initialize health, physics state, ship sprite and turret
-        type, and also handle dealing and receiving damage. Fun fact:
-        the physical stats are loosely based on those of the STS Space
-        Shuttle at least for the Applecat.
+        """
+        Initialize health, physics state, ship sprite and turret
+        type, and also handle dealing and receiving damage. 
         """
         self.health_points = 30
         if ship_type == 'Applecat':
-            self._initialize_applecat()
-        start_location = starting_pos
-        self.model = physics.Simulator(
-            start_location, 68000, 13237333, 1000000)
+            self._initialize_applecat(starting_pos)
         self.turret_angle = 0
-        self.heading = 0 # used by fire control to get relative angle
+        self.heading = 0 
+        # used by fire control to get relative angle
         # we will use this to pass the player position to fire_lasers
         # so it can draw the lasers on its own
         self.player_pos = [0, 0]
         self.i_frame_number = 0 # Invincibility frame
+        self.invincibility_period = 2*cfg.frame_rate # Measured in frames
+        self.laser_range = 10000
 
-    def _initialize_applecat(self):
-        """Load stats and models applicable to the Applecat ship."""
+    def _initialize_applecat(self, start_location):
+        """
+        Load stats and models applicable to the Applecat ship. Fun 
+        fact:the physical stats are loosely based on those of the STS 
+        Space Shuttle.
+        """
+        ac_mass = 68000
+        ac_I = 13237333 # Rotational inertia kg*m^2
+        ac_thrust = 1000000
+        ac_num_turrets = 6
         self.hull_sprite = applecat_sprite.ApplecatHullSprite()
         self.whole_ship = pygame.sprite.OrderedUpdates(self.hull_sprite)
+        self.model = physics.Simulator(start_location, ac_mass, 
+                                       ac_I, ac_thrust)
         self.turret_list = []
-        for i in range(6):
+        for i in range(ac_num_turrets):
             x = applecat_turret.ApplecatTurret(i + 1)
             self.turret_list.append(x)
             self.whole_ship.add(x)
         self.shoot_check = fire_control.FireControl("Applecat")
-        self.laser_range = 10000
 
     def motion(self, input_list, turret_angle, game_window, player_pos=[0, 0]):
         """Update the position of ship. inputs is a list of flags for
@@ -90,7 +99,7 @@ class Ship(object):
         else:
             self.hull_sprite.switch_to_neutral_sprite()
     
-    def fire_lasers(self, game_window, screen_width, screen_height):
+    def fire_lasers(self, game_window):
         """Returns laser beam trajectories by returning the length of
         the beam, the angle (in degrees), and its point of origin for
         each beam from each turret.
@@ -114,7 +123,7 @@ class Ship(object):
         """
         for beam in beam_list:
             screen_offset = [x - y for x, y in zip(self.player_pos, 
-                                [screen_width/2, screen_height/2])]
+                                [cfg.screen_width/2, cfg.screen_height/2])]
             laser_origin = [x - y for x, y in zip(beam[2], screen_offset)]
             #print(laser_origin)
             laser_generator.draw_laser(laser_origin, beam[1], game_window)
@@ -129,7 +138,7 @@ class Ship(object):
         filtered_beam_list = self._filter_beam_list(beam_list)
         damage = self.hull_sprite.overlap_detector(
             filtered_beam_list, game_window)
-        if self.i_frame_number > 60:
+        if self.i_frame_number > self.invincibility_period:
             self.health_points -= damage
             print damage, self.health_points
             if damage > 0:

@@ -12,6 +12,7 @@ import os
 import sys
 from math import *
 import pygame
+import cfg
 import ship
 import station
 import laser_generator # this is an old module from before refactoring
@@ -20,15 +21,13 @@ import key_reader
 
 # initialize variables
 is_done = False
-screen_width = 1200
-screen_height = 900
 
 # i don't know what this does
 pygame.init()
 
 # create game objects
 clock = pygame.time.Clock()
-window = pygame.display.set_mode((screen_width, screen_height))
+window = pygame.display.set_mode((cfg.screen_width, cfg.screen_height))
 game_font = pygame.font.Font(None, 36)
 player_pos = [600, 450]
 player_ship = ship.Ship('Applecat', player_pos)
@@ -49,16 +48,16 @@ while not is_done:
     # calculate turret angle
     mouse_x = pygame.mouse.get_pos()[0]
     mouse_y = pygame.mouse.get_pos()[1]
-    turr_ang = degrees(atan2(-mouse_y + screen_height/2, 
-                       mouse_x - screen_width/2))
+    turr_ang = degrees(atan2(-mouse_y + cfg.screen_height/2, 
+                       mouse_x - cfg.screen_width/2))
     player_pos = player_ship.motion(inputs, turr_ang, window, player_pos)
     npc_ship.motion([0, 0, 0, 0, 0, 0, 0], 0, window, player_pos)
     
+    station1.render(window)
     player_ship.render(window)
     npc_ship.render(window)
-    station1.render(window)
     if pygame.mouse.get_pressed()[0]: 
-        for beam in player_ship.fire_lasers(window, screen_width, screen_height):
+        for beam in player_ship.fire_lasers(window):
             laser_list.append(beam)
             
     player_ship.check_damage(laser_list, window)
@@ -67,4 +66,4 @@ while not is_done:
     
     npc_ship.check_damage(laser_list, window)
     pygame.display.flip()
-    clock.tick(30)
+    clock.tick(cfg.frame_rate)

@@ -67,7 +67,8 @@ class Simulator(object):
         # position updates
         displacement = [x*self.time_p_step for x in self.vel]
         self.pos = [x + y for x, y in zip(self.pos, displacement)]
-        self.heading += self.omega
+        raw_heading = self.heading + self.omega
+        self.heading = fmod(raw_heading, 360)
         
         # convert position to pixels
         pix_pos = [x/self.metres_p_pix for x in self.pos]
