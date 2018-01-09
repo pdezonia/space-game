@@ -36,6 +36,7 @@ class GeneralAI():
         motion. Flow of this program is accept target, point to
         target, move to target, and repeat.
         """
+        out_cmd = [0, 0, 0, 0, 0, 0, 0]
         if self.cmd_num < 0:
             # AI just completed a task and is ready for new one
             align_cmd = align_ship(current_heading, current_pos, target_pos)
@@ -47,6 +48,10 @@ class GeneralAI():
             self.last_cmd_num = self.full_cmd[-1][0]
         elif self.cmd_num <= self.last_cmd_num:
             # Check if this^ should be just a <
+            for cmd_line in self.full_cmd:
+                if cmd_line[0] > self.cmd_num:
+                    out_cmd = cmd_line[1]
+                    break
         else
             # Reached end of command sequence, revert
             self.last_cmd_num = -1
