@@ -84,6 +84,9 @@ class Ship(object):
         self.turret_angle = turret_angle
         return position
     
+    def get_heading(self):
+        return self.heading
+    
     def change_sprites(self, input_list):
         """Updates the sprite image to reflect which direction the ship
         is thrusting in.
@@ -140,7 +143,7 @@ class Ship(object):
             filtered_beam_list, game_window)
         if self.i_frame_number > self.invincibility_period:
             self.health_points -= damage
-            print damage, self.health_points
+            # print damage, self.health_points
             if damage > 0:
                 self.i_frame_number = 0
             if self.health_points <= 0:
