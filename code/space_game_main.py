@@ -61,7 +61,7 @@ while not is_done:
     # print this_cmd
     npc_pos = npc_ship.motion(this_cmd, 0, window, player_pos)
     npc_heading = npc_ship.get_heading()
-    print npc_pos, npc_heading
+    print(npc_pos, npc_heading)
     
     station1.render(window)
     player_ship.render(window)

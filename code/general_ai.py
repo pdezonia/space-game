@@ -49,7 +49,7 @@ class GeneralAI():
             for line in go_cmd:
                 line[0] += align_cmd[-1][0]
             self.full_cmd = align_cmd + go_cmd
-            if debug_on: print self.full_cmd
+            if debug_on: print(self.full_cmd)
             self.last_cmd_num = self.full_cmd[-1][0]
             self.cmd_num = 0
         elif self.cmd_num <= self.last_cmd_num:
@@ -58,7 +58,7 @@ class GeneralAI():
                 if cmd_line[0] > self.cmd_num:
                     out_cmd = cmd_line[1]
                     self.cmd_num += 1
-                    if debug_on: print 'angle: ' + str(current_heading)
+                    if debug_on: print('angle: ' + str(current_heading))
                     break
         else:
             # Reached end of command sequence, revert
@@ -77,9 +77,9 @@ class GeneralAI():
         # Convert desired heading to be b/w 0 and 360 degrees
         if (desired_heading < 0): desired_heading += 360
         angle_diff = desired_heading - current_heading
-        if debug_on: print 'angle diff: ' + str(angle_diff)
+        if debug_on: print('angle diff: ' + str(angle_diff))
         # Times are converted to frames 
-        print 'raw: ' + str(sqrt(angle_diff/float(self.ship_ang_accel)))
+        print('raw: ' + str(sqrt(angle_diff/float(self.ship_ang_accel))))
         frames_to_midpoint = round(sqrt(angle_diff/float(self.ship_ang_accel))
                                    *cfg.frame_rate)
         if debug_on: print ('frames to midpoint: ' + str(frames_to_midpoint))

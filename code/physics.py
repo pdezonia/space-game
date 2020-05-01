@@ -44,7 +44,7 @@ class Simulator(object):
         """
         lin_accel = self.motor_thrust/float(self.mass)
         rot_accel = self.rotor_thrust/float(self.rot_inert)
-        if debug_on: print 'rot_accel: ' + str(rot_accel)
+        if debug_on: print('rot_accel: ' + str(rot_accel))
         
         # Velocity controls
         delta_v = lin_accel*self.time_p_step

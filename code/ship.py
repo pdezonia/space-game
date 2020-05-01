@@ -143,7 +143,7 @@ class Ship(object):
             filtered_beam_list, game_window)
         if self.i_frame_number > self.invincibility_period:
             self.health_points -= damage
-            # print damage, self.health_points
+            # print(damage, self.health_points)
             if damage > 0:
                 self.i_frame_number = 0
             if self.health_points <= 0:

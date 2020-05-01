@@ -46,12 +46,13 @@ class Applecat(pygame.sprite.Sprite):
         
     def load_image(self, name, colorkey = None):
         fullname = os.path.join(
-        'C:\Users\Philip H. deZonia\Documents\Python_Stuff\GamesTown', name)
+        '..\graphics\images', name)
+        #'C:\Users\Philip H. deZonia\Documents\Python_Stuff\GamesTown', name)
         try:
             image = pygame.image.load(fullname)
-        except pygame.error, message:
+        except pygame.error as message:
             print('Cannot load image: ', name)
-            raise SystemExit, message
+            raise SystemExit(message)
         image = image.convert() # comes from pygame.Surface, optimizes for screen 
         if colorkey is not None: # do optional color adjustment
             if colorkey is -1:
