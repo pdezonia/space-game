@@ -127,7 +127,7 @@ class EnhancedSprite(pygame.sprite.Sprite):
         last accessed in March 2017.
         """
         fullname = os.path.join(
-        'C:\Users\Philip H. deZonia\Documents\Python_Stuff\GamesTown', name)
+        '..\graphics\images', name)
         try:
             image = pygame.image.load(fullname)
         except pygame.error, message:
