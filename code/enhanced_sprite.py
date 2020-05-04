@@ -21,7 +21,7 @@ class EnhancedSprite(pygame.sprite.Sprite):
         """
         self.dot_spacing = 10
         self._create_sprite_image('testBackSquare.png')
-        _create_hitboxes()
+        _create_hitboxes() # TODO this might need to be fixed?
         
     def _create_sprite_image(self, file_name):
         """Loads sprite image and original image for preserving quality
