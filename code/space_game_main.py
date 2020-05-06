@@ -65,36 +65,51 @@ fps_msg = '0'
 
 # game loop
 while not is_done:
-    #window.fill((50, 50, 50))
+    ### Collect user inputs
     # go through event queue
     for event in pygame.event.get():
         if (event.type == pygame.QUIT or (event.type == pygame.KEYDOWN 
             and event.key == pygame.K_ESCAPE)):
             is_done = True
     inputs = key_reader.get_key_inputs()
-    laser_list = []
     # calculate turret angle
     mouse_x = pygame.mouse.get_pos()[0]
     mouse_y = pygame.mouse.get_pos()[1]
     turr_ang = degrees(atan2(-mouse_y + cfg.screen_height/2, 
                        mouse_x - cfg.screen_width/2))
-    player_pos = player_ship.motion(inputs, turr_ang, window, player_pos)
+    # Only care about left mouse button
+    user_lasers_fired = pygame.mouse.get_pressed()[0]
+
+    ### Get input for NPCs
     this_cmd = npc_control.go_to_point(npc_heading, npc_pos, [600, 1000])
-    # print this_cmd
+
+    ### Update sprite positions
+    station1.motion(window, player_pos)
+    player_pos = player_ship.motion(inputs, turr_ang, window, player_pos)
     npc_pos = npc_ship.motion(this_cmd, 0, window, player_pos)
     npc_heading = npc_ship.get_heading()
-    #print(npc_pos, npc_heading)
     
-    # Drawing phase
+    ### Manage laser firing; must go after updating of sprite positions
+    laser_list = []
+    # Get lasers fired by player
+    if user_lasers_fired: 
+        for beam in player_ship.fire_lasers():
+            laser_list.append(beam)
+    # TODO Get lasers fired by NPCs
+
+    ### Drawing phase
+    # Clear background
+    # TODO make it so that only rects around sprites are blitted
     window.blit(background, (0, 0))
-    # Make it so that all sprites are drawn by RenderPlain
+    # Draw "stationary" sprites
     station1.render(window)
+    # Draw ship sprites
+    # TODO Make it so that all sprites are drawn together
     player_ship.render(window)
     npc_ship.render(window)
-    if pygame.mouse.get_pressed()[0]: 
-        for beam in player_ship.fire_lasers(window):
-            laser_list.append(beam)
-    
+    # Draw lasers
+    player_ship.draw_ship_beams(window)
+
     # Testing realtime text updates
     coord_msg = str(round(player_pos[0])) + ", " + str(round(player_pos[1]))
     coord_text = game_font.render(coord_msg, 1, (0, 255, 0))
@@ -114,11 +129,10 @@ while not is_done:
     hud_text_surf.blit(fps_text, fps_text_pos)
     window.blit(hud_text_surf, hud_text_origin)
 
-    player_ship.check_damage(laser_list, window)
-    station1.motion(window, player_pos)
-
+    ### Damage checking
+    player_ship.check_damage(laser_list)
+    npc_ship.check_damage(laser_list)
 
     """End of loop work (put it all in a function)"""
-    npc_ship.check_damage(laser_list, window)
     pygame.display.flip()
     clock.tick(cfg.frame_rate)

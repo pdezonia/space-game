@@ -71,13 +71,15 @@ class EnhancedSprite(pygame.sprite.Sprite):
                                      - cos(-radians(ship_angle))*hitbox[1])
             self.hitbox_zones.append(
                 [hitbox_global_x_coord, hitbox_global_y_coord, hitbox[2]])
-            """pygame.draw.circle(
+            """
+            pygame.draw.circle(
                 game_window, (255, 0, 0), 
                 [int(hitbox_global_x_coord), int(hitbox_global_y_coord)], 
-                hitbox[2])"""
+                hitbox[2])
+            """
             #print(int(hitbox_global_x_coord), int(hitbox_global_y_coord))
         
-    def overlap_detector(self, incoming_beams, game_window):
+    def overlap_detector(self, incoming_beams):
         """Takes list of lines and counts how many overlap with sprite
         hitbox circles. Lines are expressed as (length, angle, origin)
         Returns number of lines that overlap with at
@@ -87,7 +89,7 @@ class EnhancedSprite(pygame.sprite.Sprite):
         for beam in incoming_beams:
             length, angle, laser_origin = beam
             beam_points = self._beam_arg_interpret(length, angle, 
-                laser_origin, game_window)
+                laser_origin)
             for point in beam_points:
                 for hitbox in self.hitbox_zones:
                     if self._dist([hitbox[0], hitbox[1]], point) < hitbox[2]:
@@ -101,7 +103,7 @@ class EnhancedSprite(pygame.sprite.Sprite):
         return sqrt(
             (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))**2)
     
-    def _beam_arg_interpret(self, length, theta, origin, game_window):
+    def _beam_arg_interpret(self, length, theta, origin):
         """Return a list of points given a laser beam's length, its
         angle (in degrees) relative to the game window horizontal, 
         and its point of origin.
@@ -127,7 +129,7 @@ class EnhancedSprite(pygame.sprite.Sprite):
         last accessed in March 2017.
         """
         fullname = os.path.join(
-        '..\graphics\images', name)
+        '..\graphics\images\png8_type', name)
         try:
             image = pygame.image.load(fullname)
         except pygame.error as message:

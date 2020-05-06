@@ -34,6 +34,7 @@ class Ship(object):
         self.i_frame_number = 0 # Invincibility frame
         self.invincibility_period = 2*cfg.frame_rate # Measured in frames
         self.laser_range = 10000
+        self.beam_list = []
 
     def _initialize_applecat(self, start_location):
         """
@@ -86,6 +87,8 @@ class Ship(object):
     
     def get_heading(self):
         return self.heading
+
+    # TODO make get_pos
     
     def change_sprites(self, input_list):
         """Updates the sprite image to reflect which direction the ship
@@ -102,7 +105,7 @@ class Ship(object):
         else:
             self.hull_sprite.switch_to_neutral_sprite()
     
-    def fire_lasers(self, game_window):
+    def fire_lasers(self):
         """Returns laser beam trajectories by returning the length of
         the beam, the angle (in degrees), and its point of origin for
         each beam from each turret.
@@ -115,24 +118,29 @@ class Ship(object):
         # subtract heading to get relative angle of turret to ship
         are_turrets_clear2fire = self.shoot_check.check_lineoffire(
                                          turret_angle_list, self.heading)
-        beam_list = []
+        self.beam_list = []
         for turret_index in range(6):
             if are_turrets_clear2fire[turret_index]:
-                beam_list.append([self.laser_range, 
+                self.beam_list.append([self.laser_range, 
                                   turret_angle_list[turret_index],
                                   self.t_positions[turret_index]])
+        
+        return self.beam_list
+
+    def draw_ship_beams(self, game_window):
         """Draw each beam taking into account offset between game
         coordinates and screen coordinates.
         """
-        for beam in beam_list:
+        for beam in self.beam_list:
             screen_offset = [x - y for x, y in zip(self.player_pos, 
                                 [cfg.screen_width/2, cfg.screen_height/2])]
             laser_origin = [x - y for x, y in zip(beam[2], screen_offset)]
             #print(laser_origin)
             laser_generator.draw_laser(laser_origin, beam[1], game_window)
-        return beam_list
-       
-    def check_damage(self, beam_list, game_window):
+        # Clear list of beams fired so they are removed from the screen next frame
+        self.beam_list = []
+
+    def check_damage(self, beam_list):
         """Check for laser beams from other ships that overlap manually
         defined bounding box. Does not count damage if ship was hit
         recently. Currently has a variable that depends on frame rate 
@@ -140,7 +148,7 @@ class Ship(object):
         """
         filtered_beam_list = self._filter_beam_list(beam_list)
         damage = self.hull_sprite.overlap_detector(
-            filtered_beam_list, game_window)
+            filtered_beam_list)
         if self.i_frame_number > self.invincibility_period:
             self.health_points -= damage
             # print(damage, self.health_points)
@@ -152,11 +160,14 @@ class Ship(object):
                     self.turret_list[i].kill()
         else:
             self.i_frame_number += 1
+        # TODO make this function output a flag indicating that it should
+        # TODO be removed from the list of assets to update
     
     def _filter_beam_list(self, raw_beams):
         filtered_beams = []
         for beam in raw_beams:
             # currently testing with just one turret
+            # Index 2 corresponds to origin of beam
             if not self._check_inclusion(beam[2], self.t_positions):
                 filtered_beams.append(beam)
         return filtered_beams
